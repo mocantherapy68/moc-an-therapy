@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mộc An Therapy - Quản lý Khách hàng & Spa</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#38bdf8',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Inter & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Firebase SDK v10 (Compat hoặc Modular) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="h-full text-slate-800 antialiased" x-data="spaApp()" x-init="initData()">
+
+    <div class="min-h-full flex flex-col md:flex-row">
+        
+        <!-- Mobile Header -->
+        <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between md:hidden sticky top-0 z-30">
+            <div class="flex items-center space-x-3">
+                <img src="1789457415848 (1).png" alt="Mộc An Therapy Logo" class="w-10 h-10 rounded-full object-cover shadow-md border border-brand-100" onerror="this.src='https://placehold.co/100x100/1e3a8a/ffffff?text=MA'">
+                <div>
+                    <h1 class="font-bold text-slate-900 leading-tight">MỘC AN THERAPY</h1>
+                    <p class="text-xs text-slate-500">Khoẻ hơn - Linh hoạt hơn</p>
+                </div>
+            </div>
+            <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 rounded-lg text-slate-600 hover:bg-slate-100 focus:outline-none">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+        </header>
+
+        <!-- Sidebar Navigation -->
+        <aside :class="mobileMenuOpen ? 'block' : 'hidden'" class="md:block w-full md:w-64 bg-white border-r border-slate-200 flex-shrink-0 z-20 fixed md:static inset-y-0 left-0 transition-all duration-200 shadow-xl md:shadow-none">
+            <div class="h-full flex flex-col">
+                <!-- Brand Header (Desktop) -->
+                <div class="p-5 border-b border-slate-100 hidden md:flex items-center space-x-3">
+                    <img src="1789457415848 (1).png" alt="Mộc An Therapy Logo" class="w-11 h-11 rounded-full object-cover shadow-md border border-brand-100 flex-shrink-0" onerror="this.src='https://placehold.co/100x100/1e3a8a/ffffff?text=MA'">
+                    <div class="min-w-0">
+                        <h1 class="font-bold text-slate-900 tracking-wide text-sm truncate">MỘC AN THERAPY</h1>
+                        <p class="text-[11px] text-brand-600 font-medium truncate">Khoẻ • Linh hoạt • Sống tốt hơn</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+                    <template x-for="tab in tabs" :key="tab.id">
+                        <button @click="activeTab = tab.id; mobileMenuOpen = false" 
+                            :class="activeTab === tab.id ? 'bg-brand-600 text-white shadow-md shadow-brand-600/20' : 'text-slate-600 hover:bg-brand-50 hover:text-brand-700'"
+                            class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-150">
+                            <i :class="tab.icon" class="w-5 text-center text-base"></i>
+                            <span x-text="tab.name"></span>
+                        </button>
+                    </template>
+                </nav>
+
+                <!-- Cloud Sync Status Footer -->
+                <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+                    <div class="flex items-center justify-between text-xs text-slate-500 mb-2">
+                        <span>Trạng thái Firebase:</span>
+                        <span :class="isFirebaseConnected ? 'text-emerald-600 font-semibold' : 'text-amber-600 font-semibold'" x-text="isFirebaseConnected ? 'Đã kết nối Realtime' : 'Chưa cấu hình'"></span>
+                    </div>
+                    <button @click="activeTab = 'cloud'" class="w-full py-2 px-3 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-medium flex items-center justify-center space-x-2 transition">
+                        <i class="fa-solid fa-fire text-orange-500"></i>
+                        <span>Cấu hình Firebase</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col min-w-0 overflow-y-auto h-screen md:h-auto">
+            
+            <!-- Top Navbar / Header Status -->
+            <header class="bg-white border-b border-slate-200 px-6 py-4 hidden md:flex items-center justify-between sticky top-0 z-10">
+                <div class="flex items-center space-x-3">
+                    <h2 class="text-xl font-bold text-slate-800" x-text="tabs.find(t => t.id === activeTab)?.name"></h2>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-100">Mộc An Therapy v3.0 (Firebase)</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2 bg-slate-100 px-3 py-1.5 rounded-lg text-xs text-slate-600 font-medium">
+                        <i class="fa-regular fa-calendar-days text-brand-600"></i>
+                        <span x-text="currentDate"></span>
+                    </div>
+                    <span class="px-3 py-1.5 rounded-lg text-xs font-semibold" :class="isFirebaseConnected ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'" x-text="isFirebaseConnected ? '🟢 Đang đồng bộ thời gian thực' : '🟠 Chưa kết nối Database'"></span>
+                </div>
+            </header>
+
+            <div class="p-4 md:p-8 space-y-6 flex-1">
+
+                <!-- TAB 1: DASHBOARD -->
+                <div x-show="activeTab === 'dashboard'" class="space-y-6" x-cloak>
+                    <!-- Welcome Banner -->
+                    <div class="bg-gradient-to-r from-brand-600 to-brand-500 rounded-2xl p-6 text-white shadow-lg shadow-brand-500/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <h3 class="text-2xl font-bold">Chào mừng trở lại, Mộc An Therapy! ✨</h3>
+                            <p class="text-brand-100 text-sm mt-1">Hệ thống chăm sóc sức khoẻ và trị liệu chuyên nghiệp tích hợp Firebase.</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button @click="activeTab = 'customers'; openCustomerModal = true" class="bg-white text-brand-600 hover:bg-brand-50 px-4 py-2 rounded-xl font-semibold text-sm shadow transition flex items-center space-x-2">
+                                <i class="fa-solid fa-user-plus"></i>
+                                <span>Thêm Khách Hàng</span>
+                            </button>
+                            <button @click="activeTab = 'checkin'; openCheckinModal = true" class="bg-brand-700 hover:bg-brand-800 text-white px-4 py-2 rounded-xl font-semibold text-sm shadow transition flex items-center space-x-2">
+                                <i class="fa-solid fa-clipboard-user"></i>
+                                <span>Check-in Nhanh</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tổng Doanh Thu</p>
+                                <h4 class="text-2xl font-bold text-slate-900 mt-1" x-text="formatCurrency(stats.totalRevenue)"></h4>
+                                <span class="text-xs text-emerald-600 font-medium mt-1 inline-flex items-center"><i class="fa-solid fa-arrow-trend-up mr-1"></i> Thực thu thực tế</span>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-inner">
+                                <i class="fa-solid fa-wallet"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Lợi Nhuận Ròng</p>
+                                <h4 class="text-2xl font-bold text-slate-900 mt-1" x-text="formatCurrency(stats.totalProfit)"></h4>
+                                <span class="text-xs text-brand-600 font-medium mt-1 inline-flex items-center"><i class="fa-solid fa-chart-pie mr-1"></i> Doanh thu - Chi phí</span>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl shadow-inner">
+                                <i class="fa-solid fa-hand-holding-dollar"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tổng Khách Hàng</p>
+                                <h4 class="text-2xl font-bold text-slate-900 mt-1" x-text="customers.length"></h4>
+                                <span class="text-xs text-brand-700 font-medium mt-1 inline-flex items-center"><i class="fa-solid fa-users mr-1"></i> Đã đăng ký</span>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl shadow-inner">
+                                <i class="fa-solid fa-user-group"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Liệu Trình Active</p>
+                                <h4 class="text-2xl font-bold text-slate-900 mt-1" x-text="treatments.filter(t => t.status === 'Đang thực hiện').length"></h4>
+                                <span class="text-xs text-amber-600 font-medium mt-1 inline-flex items-center"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Đang trị liệu</span>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shadow-inner">
+                                <i class="fa-solid fa-clipboard-list"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Lists -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-slate-900 text-base">Check-in Gần Đây</h3>
+                                <button @click="activeTab = 'checkin'" class="text-xs font-semibold text-brand-600 hover:underline">Xem tất cả</button>
+                            </div>
+                            <div class="space-y-3">
+                                <template x-for="item in checkins.slice(0, 4)" :key="item.id">
+                                    <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm">
+                                                <i class="fa-solid fa-user"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-semibold text-sm text-slate-800" x-text="item.customerName"></h4>
+                                                <p class="text-xs text-slate-500" x-text="item.treatmentName + ' (KTV: ' + item.technician + ')'"></p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800" x-text="'Buổi ' + item.sessionNumber"></span>
+                                            <p class="text-[11px] text-slate-400 mt-1" x-text="item.date"></p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div x-show="checkins.length === 0" class="text-center py-6 text-slate-400 text-sm">Chưa có lượt check-in nào.</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-slate-900 text-base">Công Nợ Liệu Trình Trả Góp</h3>
+                                <button @click="activeTab = 'treatments'" class="text-xs font-semibold text-brand-600 hover:underline">Quản lý</button>
+                            </div>
+                            <div class="space-y-3">
+                                <template x-for="t in treatments.filter(item => item.remainingDebt > 0).slice(0, 4)" :key="t.id">
+                                    <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">
+                                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-semibold text-sm text-slate-800" x-text="t.customerName"></h4>
+                                                <p class="text-xs text-slate-500" x-text="t.packageName"></p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-sm font-bold text-red-600" x-text="formatCurrency(t.remainingDebt)"></span>
+                                            <p class="text-[11px] text-slate-400 mt-0.5">Còn nợ</p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div x-show="treatments.filter(item => item.remainingDebt > 0).length === 0" class="text-center py-6 text-slate-400 text-sm">Tuyệt vời! Không có khách hàng nào còn nợ.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: QUẢN LÝ KHÁCH HÀNG -->
+                <div x-show="activeTab === 'customers'" class="space-y-6" x-cloak>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="relative w-full sm:w-80">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-search"></i>
+                            </span>
+                            <input type="text" x-model="customerSearch" placeholder="Tìm theo tên, số điện thoại..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                        </div>
+                        <button @click="resetCustomerForm(); openCustomerModal = true" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition flex items-center space-x-2 w-full sm:w-auto justify-center">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span>Thêm Khách Hàng Mới</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                        <th class="p-4">Khách Hàng</th>
+                                        <th class="p-4">Số Điện Thoại</th>
+                                        <th class="p-4">Ngày Sinh</th>
+                                        <th class="p-4">Địa Chỉ</th>
+                                        <th class="p-4">Lịch Sử Trị Liệu</th>
+                                        <th class="p-4 text-center">Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-sm">
+                                    <template x-for="c in filteredCustomers" :key="c.id">
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="p-4 font-semibold text-slate-900 flex items-center space-x-3">
+                                                <div class="w-9 h-9 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-xs uppercase">
+                                                    <span x-text="c.name ? c.name.charAt(0) : 'U'"></span>
+                                                </div>
+                                                <span x-text="c.name"></span>
+                                            </td>
+                                            <td class="p-4 text-slate-600" x-text="c.phone"></td>
+                                            <td class="p-4 text-slate-600" x-text="c.dob || 'Chưa cập nhật'"></td>
+                                            <td class="p-4 text-slate-600" x-text="c.address || 'Chưa cập nhật'"></td>
+                                            <td class="p-4">
+                                                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-700" x-text="(c.history || 'Trị liệu cột sống / Cơ xương khớp')"></span>
+                                            </td>
+                                            <td class="p-4 text-center space-x-2">
+                                                <button @click="editCustomer(c)" class="p-2 text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition" title="Sửa">
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                </button>
+                                                <button @click="confirmDelete('customer', c.id, c.name)" class="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Xóa">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="filteredCustomers.length === 0">
+                                        <tr>
+                                            <td colspan="6" class="text-center py-8 text-slate-400">Không tìm thấy khách hàng nào.</td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: THU - CHI -->
+                <div x-show="activeTab === 'finance'" class="space-y-6" x-cloak>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <p class="text-xs font-semibold text-slate-400 uppercase">Tổng Thu</p>
+                            <h3 class="text-2xl font-bold text-emerald-600 mt-1" x-text="formatCurrency(stats.totalRevenue)"></h3>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <p class="text-xs font-semibold text-slate-400 uppercase">Tổng Chi</p>
+                            <h3 class="text-2xl font-bold text-red-600 mt-1" x-text="formatCurrency(stats.totalExpense)"></h3>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                            <p class="text-xs font-semibold text-slate-400 uppercase">Lợi Nhuận Ròng (Tự động)</p>
+                            <h3 class="text-2xl font-bold text-brand-600 mt-1" x-text="formatCurrency(stats.totalProfit)"></h3>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex space-x-2">
+                            <button @click="financeFilter = 'all'" :class="financeFilter === 'all' ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-4 py-2 rounded-xl text-sm font-semibold transition">Tất cả</button>
+                            <button @click="financeFilter = 'Thu'" :class="financeFilter === 'Thu' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-4 py-2 rounded-xl text-sm font-semibold transition">Phiếu Thu</button>
+                            <button @click="financeFilter = 'Chi'" :class="financeFilter === 'Chi' ? 'bg-red-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-4 py-2 rounded-xl text-sm font-semibold transition">Phiếu Chi</button>
+                        </div>
+                        <button @click="resetFinanceForm(); openFinanceModal = true" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition flex items-center space-x-2">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Tạo Phiếu Thu/Chi</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                        <th class="p-4">Ngày</th>
+                                        <th class="p-4">Loại</th>
+                                        <th class="p-4">Danh Mục</th>
+                                        <th class="p-4">Nội Dung / Khách Hàng</th>
+                                        <th class="p-4">Số Tiền</th>
+                                        <th class="p-4 text-center">Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-sm">
+                                    <template x-for="f in filteredFinances" :key="f.id">
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="p-4 text-slate-600" x-text="f.date"></td>
+                                            <td class="p-4">
+                                                <span :class="f.type === 'Thu' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2.5 py-1 rounded-full text-xs font-bold" x-text="f.type"></span>
+                                            </td>
+                                            <td class="p-4 font-medium text-slate-800" x-text="f.category"></td>
+                                            <td class="p-4 text-slate-600" x-text="f.note"></td>
+                                            <td class="p-4 font-bold" :class="f.type === 'Thu' ? 'text-emerald-600' : 'text-red-600'" x-text="(f.type === 'Thu' ? '+' : '-') + formatCurrency(f.amount)"></td>
+                                            <td class="p-4 text-center">
+                                                <button @click="confirmDelete('finance', f.id, f.note || f.category)" class="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Xóa">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="filteredFinances.length === 0">
+                                        <tr>
+                                            <td colspan="6" class="text-center py-8 text-slate-400">Không có dữ liệu thu chi.</td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: LIỆU TRÌNH & THANH TOÁN NHIỀU LẦN -->
+                <div x-show="activeTab === 'treatments'" class="space-y-6" x-cloak>
+                    <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-slate-800">Danh Sách Gói Liệu Trình Trị Liệu & Trả Góp</h3>
+                        <button @click="resetTreatmentForm(); openTreatmentModal = true" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition flex items-center space-x-2">
+                            <i class="fa-solid fa-folder-plus"></i>
+                            <span>Tạo Liệu Trình Mới</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <template x-for="t in treatments" :key="t.id">
+                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between space-y-4">
+                                <div>
+                                    <div class="flex justify-between items-start">
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-brand-50 text-brand-700" x-text="t.packageName"></span>
+                                        <span :class="t.status === 'Hoàn thành' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'" class="px-2.5 py-1 rounded-full text-xs font-bold" x-text="t.status"></span>
+                                    </div>
+                                    <h4 class="font-bold text-slate-900 text-lg mt-3" x-text="t.customerName"></h4>
+                                    <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-phone mr-1"></i> <span x-text="t.customerPhone"></span></p>
+                                    
+                                    <div class="mt-4 pt-4 border-t border-slate-100 space-y-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span class="text-slate-500">Tổng giá trị:</span>
+                                            <span class="font-bold text-slate-800" x-text="formatCurrency(t.totalPrice)"></span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-slate-500">Đã thanh toán:</span>
+                                            <span class="font-bold text-emerald-600" x-text="formatCurrency(t.paidAmount)"></span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-slate-500">Còn nợ (Trả góp):</span>
+                                            <span class="font-bold text-red-600" x-text="formatCurrency(t.remainingDebt)"></span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-slate-500">Số buổi:</span>
+                                            <span class="font-semibold text-slate-700" x-text="t.completedSessions + '/' + t.totalSessions + ' buổi'"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="pt-4 border-t border-slate-100 flex space-x-2">
+                                    <button @click="openInstallmentPayment(t)" class="flex-1 bg-brand-50 hover:bg-brand-100 text-brand-700 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1">
+                                        <i class="fa-solid fa-money-bill-wave"></i>
+                                        <span>Đóng Trả Góp</span>
+                                    </button>
+                                    <button @click="confirmDelete('treatment', t.id, t.packageName + ' của ' + t.customerName)" class="p-2 bg-slate-50 hover:bg-red-50 text-slate-500 hover:text-red-600 rounded-xl transition" title="Xóa">
+                                        <i class="fa-solid fa-trash text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="treatments.length === 0">
+                            <div class="col-span-full text-center py-12 text-slate-400">Chưa có gói liệu trình nào được tạo.</div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- TAB 5: CHECK-IN & THEO DÕI BUỔI TRỊ LIỆU -->
+                <div x-show="activeTab === 'checkin'" class="space-y-6" x-cloak>
+                    <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-slate-800">Check-in Buổi Trị Liệu & Chọn KTV</h3>
+                        <button @click="resetCheckinForm(); openCheckinModal = true" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition flex items-center space-x-2">
+                            <i class="fa-solid fa-clipboard-user"></i>
+                            <span>Check-in Buổi Mới</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                        <th class="p-4">Thời Gian</th>
+                                        <th class="p-4">Khách Hàng</th>
+                                        <th class="p-4">Liệu Trình</th>
+                                        <th class="p-4">Buổi Thứ</th>
+                                        <th class="p-4">Kỹ Thuật Viên</th>
+                                        <th class="p-4">Ghi Chú Trị Liệu / Cơ Xương Khớp</th>
+                                        <th class="p-4 text-center">Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 text-sm">
+                                    <template x-for="item in checkins" :key="item.id">
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="p-4 text-slate-600 text-xs" x-text="item.date"></td>
+                                            <td class="p-4 font-bold text-slate-900" x-text="item.customerName"></td>
+                                            <td class="p-4 font-medium text-brand-600" x-text="item.treatmentName"></td>
+                                            <td class="p-4">
+                                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800" x-text="'Buổi ' + item.sessionNumber"></span>
+                                            </td>
+                                            <td class="p-4 text-slate-700 font-medium" x-text="item.technician"></td>
+                                            <td class="p-4 text-slate-600 italic" x-text="item.notes || 'Không có ghi chú'"></td>
+                                            <td class="p-4 text-center">
+                                                <button @click="confirmDelete('checkin', item.id, 'Buổi ' + item.sessionNumber + ' của ' + item.customerName)" class="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Xóa">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="checkins.length === 0">
+                                        <tr>
+                                            <td colspan="7" class="text-center py-8 text-slate-400">Chưa có lịch sử check-in.</td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 6: QUẢN LÝ KỸ THUẬT VIÊN (KTV) -->
+                <div x-show="activeTab === 'technicians'" class="space-y-6" x-cloak>
+                    <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Danh Sách Kỹ Thuật Viên (KTV)</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Thêm, chỉnh sửa hoặc xóa KTV phụ trách trị liệu.</p>
+                        </div>
+                        <button @click="resetTechnicianForm(); openTechnicianModal = true" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition flex items-center space-x-2">
+                            <i class="fa-solid fa-user-nurse"></i>
+                            <span>Thêm KTV Mới</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <template x-for="tech in technicians" :key="tech.id">
+                            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-lg shadow-inner">
+                                        <i class="fa-solid fa-user-nurse"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-900 text-base" x-text="tech.name"></h4>
+                                        <p class="text-xs text-slate-500 mt-0.5" x-text="'Điện thoại: ' + (tech.phone || 'Chưa cập nhật')"></p>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-1">
+                                    <button @click="editTechnician(tech)" class="p-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition" title="Sửa tên KTV">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                    <button @click="confirmDelete('technician', tech.id, tech.name)" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition" title="Xóa KTV">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- TAB 7: CẤU HÌNH FIREBASE REALTIME DATABASE -->
+                <div x-show="activeTab === 'cloud'" class="space-y-6 max-w-2xl mx-auto" x-cloak>
+                    <div class="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-xl mb-3">
+                                <i class="fa-solid fa-fire"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-900">Cấu Hình Kết Nối Firebase Realtime Database</h3>
+                            <p class="text-sm text-slate-500 mt-1">Dán cấu hình Firebase của bạn để đồng bộ dữ liệu thời gian thực trên mọi thiết bị.</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">API Key</label>
+                                <input type="text" x-model="firebaseConfigInput.apiKey" placeholder="AIzaSy..." class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Database URL</label>
+                                <input type="text" x-model="firebaseConfigInput.databaseURL" placeholder="https://your-app-default-rtdb.firebaseio.com" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Project ID</label>
+                                    <input type="text" x-model="firebaseConfigInput.projectId" placeholder="moc-an-therapy" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">App ID</label>
+                                    <input type="text" x-model="firebaseConfigInput.appId" placeholder="1:12345:web:..." class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 pt-4 border-t border-slate-100">
+                            <button @click="saveFirebaseConfig()" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white py-2.5 rounded-xl text-sm font-semibold shadow transition flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>Lưu & Kết Nối Firebase</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: XÁC NHẬN XÓA -->
+    <div x-show="confirmModal.show" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" x-cloak>
+        <div @click.away="confirmModal.show = false" class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
+            <div class="w-14 h-14 rounded-full bg-red-50 text-red-600 flex items-center justify-center text-2xl mx-auto shadow-inner">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-lg text-slate-900">Xác Nhận Xóa</h3>
+                <p class="text-sm text-slate-500 mt-1">Bạn có chắc chắn muốn xóa <span class="font-semibold text-slate-700" x-text="confirmModal.itemName"></span> không? Thao tác này không thể hoàn tác.</p>
+            </div>
+            <div class="flex space-x-3 pt-2">
+                <button @click="confirmModal.show = false" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl text-sm font-semibold transition">Hủy</button>
+                <button @click="executeDelete()" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl text-sm font-semibold shadow transition">Đồng ý Xóa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: THÊM / SỬA KỸ THUẬT VIÊN (KTV) -->
+    <div x-show="openTechnicianModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" x-cloak>
+        <div @click.away="openTechnicianModal = false" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-lg text-slate-900" x-text="technicianForm.id ? 'Chỉnh Sửa Tên KTV' : 'Thêm Kỹ Thuật Viên Mới'"></h3>
+                <button @click="openTechnicianModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tên Kỹ Thuật Viên *</label>
+                    <input type="text" x-model="technicianForm.name" placeholder="Ví dụ: KTV. Lan Anh" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Số Điện Thoại</label>
+                    <input type="text" x-model="technicianForm.phone" placeholder="0912345678" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100">
+                <button @click="openTechnicianModal = false" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">Hủy</button>
+                <button @click="saveTechnician()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow">Lưu Thông Tin</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: THÊM / SỬA KHÁCH HÀNG -->
+    <div x-show="openCustomerModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" x-cloak>
+        <div @click.away="openCustomerModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-lg text-slate-900" x-text="customerForm.id ? 'Sửa Thông Tin Khách Hàng' : 'Thêm Khách Hàng Mới'"></h3>
+                <button @click="openCustomerModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Họ và Tên *</label>
+                    <input type="text" x-model="customerForm.name" placeholder="Nguyễn Văn A" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Số Điện Thoại *</label>
+                        <input type="text" x-model="customerForm.phone" placeholder="0912345678" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Ngày Sinh</label>
+                        <input type="date" x-model="customerForm.dob" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Địa Chỉ</label>
+                    <input type="text" x-model="customerForm.address" placeholder="Quận 1, TP. HCM" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Lịch Sử Trị Liệu / Dịch Vụ</label>
+                    <input type="text" x-model="customerForm.history" placeholder="Trị liệu cột sống cổ, nắn chỉnh..." class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100">
+                <button @click="openCustomerModal = false" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">Hủy</button>
+                <button @click="saveCustomer()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow">Lưu Thông Tin</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: THÊM PHIẾU THU - CHI -->
+    <div x-show="openFinanceModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" x-cloak>
+        <div @click.away="openFinanceModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-lg text-slate-900">Tạo Phiếu Thu / Chi Mới</h3>
+                <button @click="openFinanceModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Loại Phiếu</label>
+                        <select x-model="financeForm.type" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                            <option value="Thu">Phiếu Thu (+) </option>
+                            <option value="Chi">Phiếu Chi (-)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Ngày Giao Dịch</label>
+                        <input type="date" x-model="financeForm.date" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Danh Mục</label>
+                    <select x-model="financeForm.category" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                        <option value="Doanh thu trị liệu cột sống & xương khớp">Doanh thu trị liệu cột sống & xương khớp</option>
+                        <option value="Thanh toán trả góp liệu trình">Thanh toán trả góp liệu trình</option>
+                        <option value="Bán sản phẩm hỗ trợ">Bán sản phẩm hỗ trợ</option>
+                        <option value="Nhập dụng cụ / Dược liệu">Nhập dụng cụ / Dược liệu</option>
+                        <option value="Lương nhân viên / KTV">Lương nhân viên / KTV</option>
+                        <option value="Chi phí mặt bằng & điện nước">Chi phí mặt bằng & điện nước</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Số Tiền (VNĐ) *</label>
+                    <input type="number" x-model.number="financeForm.amount" placeholder="500000" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nội Dung / Diễn Giải</label>
+                    <input type="text" x-model="financeForm.note" placeholder="Khách Nguyễn Văn A thanh toán đợt 1..." class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100">
+                <button @click="openFinanceModal = false" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">Hủy</button>
+                <button @click="saveFinance()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow">Xác Nhận Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: TẠO GÓI LIỆU TRÌNH & TRẢ GÓP -->
+    <div x-show="openTreatmentModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" x-cloak>
+        <div @click.away="openTreatmentModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-lg text-slate-900">Tạo Gói Liệu Trình Trị Liệu & Thanh Toán</h3>
+                <button @click="openTreatmentModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Chọn Khách Hàng *</label>
+                    <select x-model="treatmentForm.customerId" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                        <option value="">-- Chọn khách hàng --</option>
+                        <template x-for="c in customers" :key="c.id">
+                            <option :value="c.id" x-text="c.name + ' (' + c.phone + ')'"></option>
+                        </template>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tên Gói Liệu Trình *</label>
+                    <input type="text" x-model="treatmentForm.packageName" placeholder="Liệu trình Trị liệu Cột sống Cổ - Lưng 10 buổi" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tổng Giá Trị (VNĐ)</label>
+                        <input type="number" x-model.number="treatmentForm.totalPrice" placeholder="5000000" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tổng Số Buổi</label>
+                        <input type="number" x-model.number="treatmentForm.totalSessions" placeholder="10" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Đã Thanh Toán Đợt 1 (VNĐ)</label>
+                    <input type="number" x-model.number="treatmentForm.paidAmount" placeholder="2000000" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                </div>
+                <p class="text-xs text-brand-600 font-medium">💡 Số tiền còn lại sẽ tự động tính vào công nợ trả góp cho khách hàng.</p>
+            </div>
+            <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100">
+                <button @click="openTreatmentModal = false" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">Hủy</button>
+                <button @click="saveTreatment()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow">Tạo Liệu Trình</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ĐÓNG TRẢ GÓP LIỆU TRÌNH -->
+    <div x-show="openInstallmentModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" x-cloak>
+        <div @click.away="openInstallmentModal = false" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-lg text-slate-900">Thanh Toán Trả Góp Đợt Tiếp</h3>
+                <button @click="openInstallmentModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1 text-sm">
+                    <p class="font-bold text-slate-800" x-text="currentTreatmentPayment.customerName"></p>
+                    <p class="text-slate-600 text-xs" x-text="currentTreatmentPayment.packageName"></p>
+                    <p class="text-red-600 font-bold mt-2">Công nợ hiện tại: <span x-text="formatCurrency(currentTreatmentPayment.remainingDebt)"></span></p>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Số Tiền Thanh Toán Đợt Này (VNĐ) *</label>
+                    <input type="number" x-model.number="installmentAmount" placeholder="1000000" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100">
+                <button @click="openInstallmentModal = false" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">Hủy</button>
+                <button @click="payInstallment()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow">Xác Nhận Đã Thu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CHECK-IN & CHỌN KTV -->
+    <div x-show="openCheckinModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" x-cloak>
+        <div @click.away="openCheckinModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-lg text-slate-900">Check-in Buổi Trị Liệu & Chọn KTV</h3>
+                <button @click="openCheckinModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Chọn Liệu Trình Đang Chạy *</label>
+                    <select x-model="checkinForm.treatmentId" @change="onSelectTreatmentForCheckin" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                        <option value="">-- Chọn liệu trình khách hàng --</option>
+                        <template x-for="t in treatments.filter(item => item.status === 'Đang thực hiện')" :key="t.id">
+                            <option :value="t.id" x-text="t.customerName + ' - ' + t.packageName + ' (Còn ' + (t.totalSessions - t.completedSessions) + ' buổi)'"></option>
+                        </template>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Buổi Thứ</label>
+                        <input type="number" x-model.number="checkinForm.sessionNumber" readonly class="w-full px-3.5 py-2 bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Kỹ Thuật Viên (KTV) *</label>
+                        <select x-model="checkinForm.technician" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                            <template x-for="tech in technicians" :key="tech.id">
+                                <option :value="tech.name" x-text="tech.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Ghi Chú Trị Liệu / Cơ Xương Khớp</label>
+                    <textarea x-model="checkinForm.notes" rows="3" placeholder="Đau mỏi vùng cổ vai gáy, đã nắn chỉnh đốt sống C5-C6..." class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500"></textarea>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100">
+                <button @click="openCheckinModal = false" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">Hủy</button>
+                <button @click="saveCheckin()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow">Xác Nhận Check-in</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div x-show="toast.show" x-transition class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center space-x-3" x-cloak>
+        <i :class="toast.icon" class="text-lg"></i>
+        <span class="text-sm font-medium" x-text="toast.message"></span>
+    </div>
+
+    <script>
+        function spaApp() {
+            return {
+                activeTab: 'dashboard',
+                mobileMenuOpen: false,
+                currentDate: new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+                isFirebaseConnected: false,
+                
+                tabs: [
+                    { id: 'dashboard', name: 'Tổng Quan', icon: 'fa-solid fa-chart-pie' },
+                    { id: 'customers', name: 'Khách Hàng', icon: 'fa-solid fa-users' },
+                    { id: 'finance', name: 'Thu - Chi', icon: 'fa-solid fa-wallet' },
+                    { id: 'treatments', name: 'Liệu Trình & Trả Góp', icon: 'fa-solid fa-clipboard-list' },
+                    { id: 'checkin', name: 'Check-in & KTV', icon: 'fa-solid fa-clipboard-user' },
+                    { id: 'technicians', name: 'Quản Lý KTV', icon: 'fa-solid fa-user-nurse' },
+                    { id: 'cloud', name: 'Cấu Hình Firebase', icon: 'fa-solid fa-fire' }
+                ],
+
+                // Dữ liệu ban đầu
+                customers: [],
+                technicians: [],
+                finances: [],
+                treatments: [],
+                checkins: [],
+
+                // Cấu hình Firebase mặc định (Bạn có thể thay đổi hoặc nhập trực tiếp trong Tab Cấu hình)
+                firebaseConfigInput: {
+                    apiKey: "AIzaSyDMKlhIDGj0Lrsyghb5EPZbFNShOk79XME",
+                    databaseURL: "https://moc-an-therapy-default-rtdb.firebaseio.com",
+                    projectId: "moc-an-therapy",
+                    appId: "1:xxx:web:xxx"
+                },
+
+                // Modals state
+                openCustomerModal: false,
+                openFinanceModal: false,
+                openTreatmentModal: false,
+                openInstallmentModal: false,
+                openCheckinModal: false,
+                openTechnicianModal: false,
+
+                // Confirm Delete Dialog State
+                confirmModal: {
+                    show: false,
+                    type: '',
+                    id: null,
+                    itemName: ''
+                },
+
+                // Forms
+                customerSearch: '',
+                financeFilter: 'all',
+                customerForm: { id: null, name: '', phone: '', dob: '', address: '', history: '' },
+                technicianForm: { id: null, name: '', phone: '' },
+                financeForm: { type: 'Thu', category: 'Doanh thu trị liệu cột sống & xương khớp', amount: '', date: new Date().toISOString().split('T')[0], note: '' },
+                treatmentForm: { customerId: '', packageName: '', totalPrice: '', totalSessions: 5, paidAmount: '' },
+                currentTreatmentPayment: { id: null, customerName: '', packageName: '', remainingDebt: 0 },
+                installmentAmount: '',
+                checkinForm: { treatmentId: '', sessionNumber: 1, technician: '', notes: '' },
+
+                toast: { show: false, message: '', icon: 'fa-solid fa-check-circle' },
+
+                initData() {
+                    const savedConfig = localStorage.getItem('moc_an_firebase_config');
+                    if (savedConfig) {
+                        this.firebaseConfigInput = JSON.parse(savedConfig);
+                        this.initFirebase();
+                    } else {
+                        // Khởi tạo mặc định nếu có sẵn cấu hình demo hoặc lưu bộ nhớ tạm
+                        this.initFirebase();
+                    }
+                },
+
+                initFirebase() {
+                    try {
+                        if (!firebase.apps.length) {
+                            firebase.initializeApp(this.firebaseConfigInput);
+                        }
+                        this.isFirebaseConnected = true;
+                        this.listenFirebaseData();
+                    } catch (e) {
+                        console.error('Lỗi khởi tạo Firebase:', e);
+                        this.isFirebaseConnected = false;
+                    }
+                },
+
+                listenFirebaseData() {
+                    const db = firebase.database();
+                    
+                    db.ref('customers').on('value', (snapshot) => {
+                        const val = snapshot.val();
+                        this.customers = val ? Object.keys(val).map(key => ({ ...val[key], id: key })) : [];
+                    });
+
+                    db.ref('technicians').on('value', (snapshot) => {
+                        const val = snapshot.val();
+                        this.technicians = val ? Object.keys(val).map(key => ({ ...val[key], id: key })) : [
+                            { id: '1', name: 'KTV. Lan Anh', phone: '0901112233' },
+                            { id: '2', name: 'KTV. Mỹ Hạnh', phone: '0902223344' }
+                        ];
+                    });
+
+                    db.ref('finances').on('value', (snapshot) => {
+                        const val = snapshot.val();
+                        this.finances = val ? Object.keys(val).map(key => ({ ...val[key], id: key })).reverse() : [];
+                    });
+
+                    db.ref('treatments').on('value', (snapshot) => {
+                        const val = snapshot.val();
+                        this.treatments = val ? Object.keys(val).map(key => ({ ...val[key], id: key })).reverse() : [];
+                    });
+
+                    db.ref('checkins').on('value', (snapshot) => {
+                        const val = snapshot.val();
+                        this.checkins = val ? Object.keys(val).map(key => ({ ...val[key], id: key })).reverse() : [];
+                    });
+                },
+
+                saveFirebaseConfig() {
+                    localStorage.setItem('moc_an_firebase_config', JSON.stringify(this.firebaseConfigInput));
+                    this.initFirebase();
+                    this.showToast('Đã lưu và kết nối thành công tới Firebase!');
+                },
+
+                showToast(msg, icon = 'fa-solid fa-check-circle') {
+                    this.toast.message = msg;
+                    this.toast.icon = icon;
+                    this.toast.show = true;
+                    setTimeout(() => { this.toast.show = false; }, 3000);
+                },
+
+                formatCurrency(val) {
+                    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val || 0);
+                },
+
+                get stats() {
+                    let totalRevenue = this.finances.filter(f => f.type === 'Thu').reduce((acc, f) => acc + (f.amount || 0), 0);
+                    let totalExpense = this.finances.filter(f => f.type === 'Chi').reduce((acc, f) => acc + (f.amount || 0), 0);
+                    let totalProfit = totalRevenue - totalExpense;
+                    return { totalRevenue, totalExpense, totalProfit };
+                },
+
+                get filteredCustomers() {
+                    if (!this.customerSearch) return this.customers;
+                    let q = this.customerSearch.toLowerCase();
+                    return this.customers.filter(c => c.name.toLowerCase().includes(q) || c.phone.includes(q));
+                },
+
+                get filteredFinances() {
+                    if (this.financeFilter === 'all') return this.finances;
+                    return this.finances.filter(f => f.type === this.financeFilter);
+                },
+
+                confirmDelete(type, id, itemName) {
+                    this.confirmModal = { show: true, type, id, itemName };
+                },
+
+                executeDelete() {
+                    const { type, id } = this.confirmModal;
+                    const db = firebase.database();
+                    let path = '';
+                    if (type === 'customer') path = 'customers';
+                    else if (type === 'treatment') path = 'treatments';
+                    else if (type === 'checkin') path = 'checkins';
+                    else if (type === 'finance') path = 'finances';
+                    else if (type === 'technician') path = 'technicians';
+
+                    if (path && id) {
+                        db.ref(`${path}/${id}`).remove().then(() => {
+                            this.showToast('Đã xóa thành công khỏi hệ thống!');
+                        });
+                    }
+                    this.confirmModal.show = false;
+                },
+
+                // Customer Methods
+                resetCustomerForm() {
+                    this.customerForm = { id: null, name: '', phone: '', dob: '', address: '', history: '' };
+                },
+                editCustomer(c) {
+                    this.customerForm = { ...c };
+                    this.openCustomerModal = true;
+                },
+                saveCustomer() {
+                    if (!this.customerForm.name || !this.customerForm.phone) {
+                        this.showToast('Vui lòng nhập họ tên và số điện thoại!', 'fa-solid fa-triangle-exclamation');
+                        return;
+                    }
+                    const db = firebase.database();
+                    if (this.customerForm.id) {
+                        let id = this.customerForm.id;
+                        let dataToUpdate = { ...this.customerForm };
+                        delete dataToUpdate.id;
+                        db.ref(`customers/${id}`).update(dataToUpdate);
+                        this.showToast('Đã cập nhật thông tin khách hàng!');
+                    } else {
+                        let newRef = db.ref('customers').push();
+                        let newC = { ...this.customerForm };
+                        delete newC.id;
+                        newRef.set(newC);
+                        this.showToast('Đã thêm khách hàng mới thành công!');
+                    }
+                    this.openCustomerModal = false;
+                    this.resetCustomerForm();
+                },
+
+                // Technician Methods
+                resetTechnicianForm() {
+                    this.technicianForm = { id: null, name: '', phone: '' };
+                },
+                editTechnician(tech) {
+                    this.technicianForm = { ...tech };
+                    this.openTechnicianModal = true;
+                },
+                saveTechnician() {
+                    if (!this.technicianForm.name) {
+                        this.showToast('Vui lòng nhập tên kỹ thuật viên!', 'fa-solid fa-triangle-exclamation');
+                        return;
+                    }
+                    const db = firebase.database();
+                    if (this.technicianForm.id) {
+                        let id = this.technicianForm.id;
+                        db.ref(`technicians/${id}`).update({ name: this.technicianForm.name, phone: this.technicianForm.phone });
+                        this.showToast('Đã cập nhật tên KTV thành công!');
+                    } else {
+                        db.ref('technicians').push({ name: this.technicianForm.name, phone: this.technicianForm.phone });
+                        this.showToast('Đã thêm KTV mới thành công!');
+                    }
+                    this.openTechnicianModal = false;
+                    this.resetTechnicianForm();
+                },
+
+                // Finance Methods
+                resetFinanceForm() {
+                    this.financeForm = { type: 'Thu', category: 'Doanh thu trị liệu cột sống & xương khớp', amount: '', date: new Date().toISOString().split('T')[0], note: '' };
+                },
+                saveFinance() {
+                    if (!this.financeForm.amount || this.financeForm.amount <= 0) {
+                        this.showToast('Vui lòng nhập số tiền hợp lệ!', 'fa-solid fa-triangle-exclamation');
+                        return;
+                    }
+                    const db = firebase.database();
+                    db.ref('finances').push(this.financeForm);
+                    this.openFinanceModal = false;
+                    this.showToast('Đã ghi nhận phiếu thu/chi thành công!');
+                },
+
+                // Treatment Methods
+                resetTreatmentForm() {
+                    this.treatmentForm = { customerId: '', packageName: '', totalPrice: '', totalSessions: 5, paidAmount: '' };
+                },
+                saveTreatment() {
+                    let c = this.customers.find(item => item.id == this.treatmentForm.customerId);
+                    if (!c || !this.treatmentForm.packageName || !this.treatmentForm.totalPrice) {
+                        this.showToast('Vui lòng điền đầy đủ thông tin liệu trình!', 'fa-solid fa-triangle-exclamation');
+                        return;
+                    }
+                    let paid = this.treatmentForm.paidAmount || 0;
+                    let remaining = this.treatmentForm.totalPrice - paid;
+                    const db = firebase.database();
+                    
+                    let newT = {
+                        customerId: c.id,
+                        customerName: c.name,
+                        customerPhone: c.phone,
+                        packageName: this.treatmentForm.packageName,
+                        totalPrice: this.treatmentForm.totalPrice,
+                        paidAmount: paid,
+                        remainingDebt: remaining > 0 ? remaining : 0,
+                        totalSessions: this.treatmentForm.totalSessions || 5,
+                        completedSessions: 0,
+                        status: 'Đang thực hiện'
+                    };
+                    db.ref('treatments').push(newT);
+
+                    if (paid > 0) {
+                        db.ref('finances').push({
+                            type: 'Thu',
+                            category: 'Thanh toán trả góp liệu trình',
+                            amount: paid,
+                            date: new Date().toISOString().split('T')[0],
+                            note: `Thanh toán đợt 1 gói ${newT.packageName} - ${c.name}`
+                        });
+                    }
+
+                    this.openTreatmentModal = false;
+                    this.showToast('Đã tạo gói liệu trình & trả góp thành công!');
+                },
+
+                openInstallmentPayment(t) {
+                    this.currentTreatmentPayment = t;
+                    this.installmentAmount = t.remainingDebt;
+                    this.openInstallmentModal = true;
+                },
+                payInstallment() {
+                    if (!this.installmentAmount || this.installmentAmount <= 0) {
+                        this.showToast('Vui lòng nhập số tiền đóng trả góp!', 'fa-solid fa-triangle-exclamation');
+                        return;
+                    }
+                    let t = this.treatments.find(item => item.id === this.currentTreatmentPayment.id);
+                    if (t) {
+                        let newPaid = t.paidAmount + this.installmentAmount;
+                        let newDebt = Math.max(0, t.remainingDebt - this.installmentAmount);
+                        
+                        const db = firebase.database();
+                        db.ref(`treatments/${t.id}`).update({
+                            paidAmount: newPaid,
+                            remainingDebt: newDebt
+                        });
+
+                        db.ref('finances').push({
+                            type: 'Thu',
+                            category: 'Thanh toán trả góp liệu trình',
+                            amount: this.installmentAmount,
+                            date: new Date().toISOString().split('T')[0],
+                            note: `Trả góp tiếp gói ${t.packageName} - ${t.customerName}`
+                        });
+
+                        this.openInstallmentModal = false;
+                        this.showToast('Đã ghi nhận thanh toán trả góp thành công!');
+                    }
+                },
+
+                // Check-in Methods
+                resetCheckinForm() {
+                    this.checkinForm = { treatmentId: '', sessionNumber: 1, technician: this.technicians[0]?.name || 'KTV. Lan Anh', notes: '' };
+                },
+                onSelectTreatmentForCheckin() {
+                    let t = this.treatments.find(item => item.id == this.checkinForm.treatmentId);
+                    if (t) {
+                        this.checkinForm.sessionNumber = Math.min(t.totalSessions, t.completedSessions + 1);
+                    }
+                },
+                saveCheckin() {
+                    let t = this.treatments.find(item => item.id == this.checkinForm.treatmentId);
+                    if (!t) {
+                        this.showToast('Vui lòng chọn liệu trình hợp lệ!', 'fa-solid fa-triangle-exclamation');
+                        return;
+                    }
+
+                    let nextSession = Math.min(t.totalSessions, t.completedSessions + 1);
+                    const db = firebase.database();
+
+                    let newChk = {
+                        customerId: t.customerId,
+                        customerName: t.customerName,
+                        treatmentId: t.id,
+                        treatmentName: t.packageName,
+                        sessionNumber: nextSession,
+                        technician: this.checkinForm.technician || this.technicians[0]?.name,
+                        notes: this.checkinForm.notes,
+                        date: new Date().toISOString().replace('T', ' ').substring(0, 16)
+                    };
+
+                    db.ref('checkins').push(newChk);
+
+                    let updatedCompleted = nextSession;
+                    let updatedStatus = updatedCompleted >= t.totalSessions ? 'Hoàn thành' : 'Đang thực hiện';
+                    
+                    db.ref(`treatments/${t.id}`).update({
+                        completedSessions: updatedCompleted,
+                        status: updatedStatus
+                    });
+
+                    this.openCheckinModal = false;
+                    this.showToast('Check-in buổi trị liệu thành công!');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
