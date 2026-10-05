@@ -103,7 +103,7 @@
             <header class="bg-white border-b border-slate-200 px-6 py-4 hidden md:flex items-center justify-between sticky top-0 z-10">
                 <div class="flex items-center space-x-3">
                     <h2 class="text-xl font-bold text-slate-800" x-text="tabs.find(t => t.id === activeTab)?.name"></h2>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-100">Mộc An Therapy v3.3 (Firebase)</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-100">Mộc An Therapy v3.4 (Firebase)</span>
                 </div>
                 <div class="flex items-center space-x-4">
                     <div class="flex items-center space-x-2 bg-slate-100 px-3 py-1.5 rounded-lg text-xs text-slate-600 font-medium">
@@ -116,7 +116,7 @@
 
             <div class="p-4 md:p-8 space-y-6 flex-1">
 
-                <!-- TAB 1: DASHBOARD (TÍCH HỢP CHECK-IN TỪ KẾT QUẢ TÌM KIẾM TỔNG QUAN) -->
+                <!-- TAB 1: DASHBOARD -->
                 <div x-show="activeTab === 'dashboard'" class="space-y-6" x-cloak>
                     <!-- Welcome Banner & Thanh tìm kiếm trực tiếp tại Tổng quan -->
                     <div class="bg-gradient-to-r from-brand-600 to-brand-500 rounded-2xl p-6 text-white shadow-lg shadow-brand-500/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -139,7 +139,7 @@
                         </div>
                     </div>
 
-                    <!-- Kết quả tìm kiếm nhanh tại Tab Tổng quan kèm Nút Check-in trực tiếp (Chỉ hiện nút nếu có liệu trình active) -->
+                    <!-- Kết quả tìm kiếm nhanh tại Tab Tổng quan -->
                     <div x-show="dashboardSearch.trim() !== ''" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3" x-cloak>
                         <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                             <h4 class="font-bold text-slate-800 text-sm">Kết quả tìm kiếm cho: "<span class="text-brand-600" x-text="dashboardSearch"></span>"</h4>
@@ -154,20 +154,16 @@
                                         <p class="text-[10px] mt-1" :class="hasActiveTreatment(c.id) ? 'text-emerald-600 font-semibold' : 'text-slate-400'" x-text="hasActiveTreatment(c.id) ? '● Có liệu trình active' : '○ Khách buổi lẻ'"></p>
                                     </div>
                                     <div class="flex items-center space-x-1.5 flex-shrink-0">
-                                        <!-- Nút Check-in chỉ hiển thị nếu khách hàng có liệu trình đang thực hiện -->
                                         <button x-show="hasActiveTreatment(c.id)" @click="quickCheckinFromDashboard(c)" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition flex items-center space-x-1" title="Check-in ngay">
                                             <i class="fa-solid fa-clipboard-user"></i>
                                             <span>Check-in</span>
                                         </button>
-                                        <button @click="activeTab = 'customers'; customerSearch = c.phone" class="px-2 py-1 bg-brand-50 text-brand-700 text-xs font-semibold rounded-lg hover:bg-brand-100 transition" title="Xem hồ sơ">
+                                        <button @click="viewCustomerDetail(c)" class="px-2 py-1 bg-brand-50 text-brand-700 text-xs font-semibold rounded-lg hover:bg-brand-100 transition" title="Xem hồ sơ">
                                             <i class="fa-solid fa-eye"></i>
                                         </button>
                                     </div>
                                 </div>
                             </template>
-                        </div>
-                        <div x-show="customers.filter(item => item.name.toLowerCase().includes(dashboardSearch.toLowerCase()) || item.phone.includes(dashboardSearch)).length === 0" class="text-center py-4 text-slate-400 text-sm">
-                            Không tìm thấy khách hàng nào khớp với từ khóa.
                         </div>
                     </div>
 
@@ -184,11 +180,12 @@
                             </div>
                         </div>
 
-                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <!-- LƯỢT KHÁCH HÀNG TRONG THÁNG (ĐỒNG BỘ CHÍNH XÁC VỚI TAB KHÁCH HÀNG TRONG THÁNG) -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-brand-300 transition" @click="activeTab = 'monthly_customers'">
                             <div>
                                 <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Lượt Khách Trong Tháng</p>
                                 <h4 class="text-2xl font-bold text-slate-900 mt-1" x-text="stats.totalMonthlyVisits"></h4>
-                                <span class="text-xs text-emerald-600 font-medium mt-1 inline-flex items-center"><i class="fa-solid fa-calendar-check mr-1"></i> Checkin + Buổi lẻ</span>
+                                <span class="text-xs text-emerald-600 font-medium mt-1 inline-flex items-center"><i class="fa-solid fa-calendar-check mr-1"></i> Checkin + Buổi lẻ (Click xem)</span>
                             </div>
                             <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-inner">
                                 <i class="fa-solid fa-users-line"></i>
@@ -214,63 +211,6 @@
                             </div>
                             <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shadow-inner">
                                 <i class="fa-solid fa-clipboard-list"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Lists -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="font-bold text-slate-900 text-base">Check-in Gần Đây</h3>
-                                <button @click="activeTab = 'monthly_customers'" class="text-xs font-semibold text-brand-600 hover:underline">Xem tất cả</button>
-                            </div>
-                            <div class="space-y-3">
-                                <template x-for="item in checkins.slice(0, 4)" :key="item.id">
-                                    <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
-                                        <div class="flex items-center space-x-3">
-                                            <div class="w-10 h-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm">
-                                                <i class="fa-solid fa-user"></i>
-                                            </div>
-                                            <div>
-                                                <h4 class="font-semibold text-sm text-slate-800" x-text="item.customerName"></h4>
-                                                <p class="text-xs text-slate-500" x-text="item.treatmentName + ' (KTV: ' + item.technician + ')'"></p>
-                                            </div>
-                                        </div>
-                                        <div class="text-right">
-                                            <span class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800" x-text="'Buổi ' + item.sessionNumber"></span>
-                                            <p class="text-[11px] text-slate-400 mt-1" x-text="item.date"></p>
-                                        </div>
-                                    </div>
-                                </template>
-                                <div x-show="checkins.length === 0" class="text-center py-6 text-slate-400 text-sm">Chưa có lượt check-in nào.</div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="font-bold text-slate-900 text-base">Công Nợ Liệu Trình Trả Góp</h3>
-                                <button @click="activeTab = 'treatments'" class="text-xs font-semibold text-brand-600 hover:underline">Quản lý</button>
-                            </div>
-                            <div class="space-y-3">
-                                <template x-for="t in treatments.filter(item => item.remainingDebt > 0).slice(0, 4)" :key="t.id">
-                                    <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
-                                        <div class="flex items-center space-x-3">
-                                            <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">
-                                                <i class="fa-solid fa-file-invoice-dollar"></i>
-                                            </div>
-                                            <div>
-                                                <h4 class="font-semibold text-sm text-slate-800" x-text="t.customerName"></h4>
-                                                <p class="text-xs text-slate-500" x-text="t.packageName"></p>
-                                            </div>
-                                        </div>
-                                        <div class="text-right">
-                                            <span class="text-sm font-bold text-red-600" x-text="formatCurrency(t.remainingDebt)"></span>
-                                            <p class="text-[11px] text-slate-400 mt-0.5">Còn nợ</p>
-                                        </div>
-                                    </div>
-                                </template>
-                                <div x-show="treatments.filter(item => item.remainingDebt > 0).length === 0" class="text-center py-6 text-slate-400 text-sm">Tuyệt vời! Không có khách hàng nào còn nợ.</div>
                             </div>
                         </div>
                     </div>
@@ -319,8 +259,12 @@
                                             <td class="p-4">
                                                 <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-700" x-text="(c.history || 'Trị liệu cột sống / Cơ xương khớp')"></span>
                                             </td>
-                                            <td class="p-4 text-center space-x-2">
-                                                <button @click="editCustomer(c)" class="p-2 text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition" title="Sửa">
+                                            <td class="p-4 text-center space-x-1">
+                                                <!-- Nút Xem Hồ Sơ & Lịch Sử Trị Liệu -->
+                                                <button @click="viewCustomerDetail(c)" class="p-2 text-brand-600 hover:bg-brand-50 rounded-lg transition" title="Xem hồ sơ & Lịch sử trị liệu">
+                                                    <i class="fa-solid fa-folder-open"></i>
+                                                </button>
+                                                <button @click="editCustomer(c)" class="p-2 text-slate-500 hover:text-brand-600 hover:bg-slate-50 rounded-lg transition" title="Sửa">
                                                     <i class="fa-solid fa-pen-to-square"></i>
                                                 </button>
                                                 <button @click="confirmDelete('customer', c.id, c.name)" class="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Xóa">
@@ -697,6 +641,85 @@
         </main>
     </div>
 
+    <!-- MODAL: XEM HỒ SƠ & LỊCH SỬ TRỊ LIỆU KHÁCH HÀNG -->
+    <div x-show="openCustomerDetailModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 overflow-y-auto" x-cloak>
+        <div @click.away="openCustomerDetailModal = false" class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-6 my-8 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-lg uppercase">
+                        <span x-text="selectedCustomerDetail.name ? selectedCustomerDetail.name.charAt(0) : 'U'"></span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-xl text-slate-900" x-text="selectedCustomerDetail.name"></h3>
+                        <p class="text-xs text-slate-500"><i class="fa-solid fa-phone mr-1"></i> <span x-text="selectedCustomerDetail.phone"></span></p>
+                    </div>
+                </div>
+                <button @click="openCustomerDetailModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <!-- Thông tin cá nhân -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 text-sm">
+                <div>
+                    <span class="text-xs text-slate-400 uppercase font-semibold">Ngày sinh:</span>
+                    <p class="font-medium text-slate-800 mt-0.5" x-text="selectedCustomerDetail.dob || 'Chưa cập nhật'"></p>
+                </div>
+                <div>
+                    <span class="text-xs text-slate-400 uppercase font-semibold">Địa chỉ:</span>
+                    <p class="font-medium text-slate-800 mt-0.5" x-text="selectedCustomerDetail.address || 'Chưa cập nhật'"></p>
+                </div>
+                <div>
+                    <span class="text-xs text-slate-400 uppercase font-semibold">Tình trạng / Lịch sử:</span>
+                    <p class="font-medium text-brand-600 mt-0.5" x-text="selectedCustomerDetail.history || 'Chưa cập nhật'"></p>
+                </div>
+            </div>
+
+            <!-- Các gói liệu trình của khách hàng -->
+            <div class="space-y-3">
+                <h4 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-clipboard-list text-brand-600 mr-2"></i> Thông Tin Liệu Trình & Công Nợ</h4>
+                <div class="space-y-2">
+                    <template x-for="t in treatments.filter(item => item.customerId === selectedCustomerDetail.id)" :key="t.id">
+                        <div class="p-3.5 rounded-xl bg-brand-50/50 border border-brand-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-sm">
+                            <div>
+                                <h5 class="font-bold text-slate-900" x-text="t.packageName"></h5>
+                                <p class="text-xs text-slate-500 mt-0.5">Tiến độ: <span class="font-semibold text-brand-600" x-text="t.completedSessions + '/' + t.totalSessions + ' buổi'"></span> • Trạng thái: <span class="font-semibold" :class="t.status === 'Hoàn thành' ? 'text-emerald-600' : 'text-amber-600'" x-text="t.status"></span></p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-slate-500">Còn nợ: <span class="font-bold text-red-600" x-text="formatCurrency(t.remainingDebt)"></span></p>
+                                <p class="text-[11px] text-slate-400">Đã trả: <span x-text="formatCurrency(t.paidAmount)"></span></p>
+                            </div>
+                        </div>
+                    </template>
+                    <div x-show="treatments.filter(item => item.customerId === selectedCustomerDetail.id).length === 0" class="text-center py-3 text-slate-400 text-xs italic">
+                        Khách hàng chưa đăng ký gói liệu trình nào.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lịch sử các buổi trị liệu / check-in -->
+            <div class="space-y-3">
+                <h4 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-calendar-check text-emerald-600 mr-2"></i> Lịch Sử Check-in & Điều Trị</h4>
+                <div class="space-y-2 max-h-48 overflow-y-auto">
+                    <template x-for="item in checkins.filter(c => c.customerId === selectedCustomerDetail.id)" :key="item.id">
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs flex justify-between items-center">
+                            <div>
+                                <span class="font-bold text-brand-600" x-text="item.treatmentName + ' (Buổi ' + item.sessionNumber + ')'"></span>
+                                <p class="text-slate-500 mt-0.5" x-text="'KTV: ' + item.technician + ' • Ghi chú: ' + (item.notes || 'Không có')"></p>
+                            </div>
+                            <span class="text-slate-400" x-text="item.date"></span>
+                        </div>
+                    </template>
+                    <div x-show="checkins.filter(c => c.customerId === selectedCustomerDetail.id).length === 0" class="text-center py-3 text-slate-400 text-xs italic">
+                        Chưa có lịch sử check-in trị liệu nào.
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-3 border-t border-slate-100">
+                <button @click="openCustomerDetailModal = false" class="px-5 py-2 rounded-xl text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700">Đóng</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL: XÁC NHẬN XÓA -->
     <div x-show="confirmModal.show" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" x-cloak>
         <div @click.away="confirmModal.show = false" class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
@@ -1066,12 +1089,15 @@
                 },
 
                 openCustomerModal: false,
+                openCustomerDetailModal: false,
                 openFinanceModal: false,
                 openTreatmentModal: false,
                 openInstallmentModal: false,
                 openCheckinModal: false,
                 openTechnicianModal: false,
                 confirmResetFinanceModal: false,
+
+                selectedCustomerDetail: {},
 
                 confirmModal: {
                     show: false,
@@ -1134,124 +1160,104 @@
                     const db = firebase.database();
                     
                     db.ref('customers').on('value', (snapshot) => {
-                        const val = snapshot.val();
-                        this.customers = val ? Object.keys(val).map(key => ({ ...val[key], id: key })) : [];
+                        const data = snapshot.val();
+                        this.customers = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
                     });
 
                     db.ref('technicians').on('value', (snapshot) => {
-                        const val = snapshot.val();
-                        this.technicians = val ? Object.keys(val).map(key => ({ ...val[key], id: key })) : [
-                            { id: '1', name: 'KTV. Lan Anh', phone: '0901112233' },
-                            { id: '2', name: 'KTV. Mỹ Hạnh', phone: '0902223344' }
-                        ];
+                        const data = snapshot.val();
+                        this.technicians = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
                         if (this.technicians.length > 0 && !this.customerForm.singleTechnician) {
                             this.customerForm.singleTechnician = this.technicians[0].name;
+                        }
+                        if (this.technicians.length > 0 && !this.checkinForm.technician) {
+                            this.checkinForm.technician = this.technicians[0].name;
                         }
                     });
 
                     db.ref('finances').on('value', (snapshot) => {
-                        const val = snapshot.val();
-                        this.finances = val ? Object.keys(val).map(key => ({ ...val[key], id: key })).reverse() : [];
+                        const data = snapshot.val();
+                        this.finances = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
                     });
 
                     db.ref('treatments').on('value', (snapshot) => {
-                        const val = snapshot.val();
-                        this.treatments = val ? Object.keys(val).map(key => ({ ...val[key], id: key })).reverse() : [];
+                        const data = snapshot.val();
+                        this.treatments = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
                     });
 
                     db.ref('checkins').on('value', (snapshot) => {
-                        const val = snapshot.val();
-                        this.checkins = val ? Object.keys(val).map(key => ({ ...val[key], id: key })).reverse() : [];
+                        const data = snapshot.val();
+                        this.checkins = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
                     });
                 },
 
                 saveFirebaseConfig() {
                     localStorage.setItem('moc_an_firebase_config', JSON.stringify(this.firebaseConfigInput));
                     this.initFirebase();
-                    this.showToast('Đã lưu và kết nối thành công tới Firebase!');
+                    this.showToast('Đã lưu và kết nối Firebase thành công!', 'fa-solid fa-fire');
                 },
 
-                showToast(msg, icon = 'fa-solid fa-check-circle') {
-                    this.toast.message = msg;
+                showToast(message, icon = 'fa-solid fa-check-circle') {
+                    this.toast.message = message;
                     this.toast.icon = icon;
                     this.toast.show = true;
                     setTimeout(() => { this.toast.show = false; }, 3000);
                 },
 
                 formatCurrency(val) {
-                    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val || 0);
+                    if (!val && val !== 0) return '0 ₫';
+                    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
                 },
 
-                // Kiểm tra xem khách hàng có liệu trình đang hoạt động (active) hay không
+                getCustomerPhone(customerId) {
+                    const c = this.customers.find(item => item.id === customerId);
+                    return c ? c.phone : 'Chưa có SĐT';
+                },
+
                 hasActiveTreatment(customerId) {
                     return this.treatments.some(t => t.customerId === customerId && t.status === 'Đang thực hiện');
                 },
 
+                viewCustomerDetail(c) {
+                    this.selectedCustomerDetail = c;
+                    this.openCustomerDetailModal = true;
+                },
+
+                quickCheckinFromDashboard(c) {
+                    const activeT = this.treatments.find(t => t.customerId === c.id && t.status === 'Đang thực hiện');
+                    if (activeT) {
+                        this.checkinForm.treatmentId = activeT.id;
+                        this.checkinForm.sessionNumber = activeT.completedSessions + 1;
+                        this.checkinForm.technician = this.technicians.length > 0 ? this.technicians[0].name : '';
+                        this.checkinForm.notes = '';
+                        this.activeTab = 'checkin';
+                        this.openCheckinModal = true;
+                    }
+                },
+
                 get stats() {
-                    let totalRevenue = this.finances.filter(f => f.type === 'Thu').reduce((acc, f) => acc + (f.amount || 0), 0);
-                    let totalExpense = this.finances.filter(f => f.type === 'Chi').reduce((acc, f) => acc + (f.amount || 0), 0);
-                    let totalProfit = totalRevenue - totalExpense;
+                    const totalRev = this.finances.filter(f => f.type === 'Thu').reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
+                    const totalExp = this.finances.filter(f => f.type === 'Chi').reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
+                    
+                    const currentMonthStr = new Date().toISOString().substring(0, 7);
+                    const currentMonthRev = this.finances.filter(f => f.type === 'Thu' && f.date && f.date.startsWith(currentMonthStr)).reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
+                    
+                    // Lượt khách trong tháng: đếm tổng check-in + khách lẻ trong tháng được chọn
+                    const monthlyVisits = this.checkins.filter(item => item.date && item.date.startsWith(this.selectedMonthFilter)).length;
 
-                    let currentMonthStr = new Date().toISOString().substring(0, 7);
-                    let currentMonthRevenue = this.finances
-                        .filter(f => f.type === 'Thu' && f.date && f.date.startsWith(currentMonthStr))
-                        .reduce((acc, f) => acc + (f.amount || 0), 0);
-
-                    let monthlyCheckins = this.checkins.filter(item => item.date && item.date.startsWith(currentMonthStr)).length;
-                    let monthlySingleTreatments = this.finances.filter(f => f.type === 'Thu' && f.date && f.date.startsWith(currentMonthStr) && (f.category.includes('buổi lẻ') || f.category.includes('lẻ'))).length;
-                    let totalMonthlyVisits = monthlyCheckins + monthlySingleTreatments;
-
-                    return { totalRevenue, totalExpense, totalProfit, currentMonthRevenue, totalMonthlyVisits };
+                    return {
+                        totalRevenue: totalRev,
+                        totalExpense: totalExp,
+                        totalProfit: totalRev - totalExp,
+                        currentMonthRevenue: currentMonthRev,
+                        totalMonthlyVisits: monthlyVisits
+                    };
                 },
 
                 get filteredCustomers() {
-                    if (!this.customerSearch) return this.customers;
-                    let q = this.customerSearch.toLowerCase();
-                    return this.customers.filter(c => c.name.toLowerCase().includes(q) || c.phone.includes(q));
-                },
-
-                get filteredCheckins() {
-                    let list = this.checkins;
-                    if (this.selectedMonthFilter) {
-                        list = list.filter(item => item.date && item.date.startsWith(this.selectedMonthFilter));
-                    }
-                    if (this.checkinSearch) {
-                        let q = this.checkinSearch.toLowerCase();
-                        list = list.filter(item => {
-                            let phone = this.getCustomerPhone(item.customerId).toLowerCase();
-                            let name = (item.customerName || '').toLowerCase();
-                            return name.includes(q) || phone.includes(q);
-                        });
-                    }
-                    return list;
-                },
-
-                get filteredMonthlyCustomers() {
-                    let list = this.checkins;
-                    if (this.selectedMonthFilter) {
-                        list = list.filter(item => item.date && item.date.startsWith(this.selectedMonthFilter));
-                    }
-                    if (this.monthlySearch) {
-                        let q = this.monthlySearch.toLowerCase();
-                        list = list.filter(item => {
-                            let phone = this.getCustomerPhone(item.customerId).toLowerCase();
-                            let name = (item.customerName || '').toLowerCase();
-                            return name.includes(q) || phone.includes(q);
-                        });
-                    }
-                    return list;
-                },
-
-                get filteredTreatmentsForCheckin() {
-                    let activeList = this.treatments.filter(item => item.status === 'Đang thực hiện');
-                    if (!this.checkinModalSearch) return activeList;
-                    let q = this.checkinModalSearch.toLowerCase();
-                    return activeList.filter(t => t.customerName.toLowerCase().includes(q) || t.customerPhone.includes(q) || t.packageName.toLowerCase().includes(q));
-                },
-
-                getCustomerPhone(customerId) {
-                    let c = this.customers.find(item => item.id === customerId);
-                    return c ? c.phone : 'Chưa rõ SĐT';
+                    if (!this.customerSearch.trim()) return this.customers;
+                    const q = this.customerSearch.toLowerCase();
+                    return this.customers.filter(c => (c.name && c.name.toLowerCase().includes(q)) || (c.phone && c.phone.includes(q)));
                 },
 
                 get filteredFinances() {
@@ -1259,22 +1265,183 @@
                     return this.finances.filter(f => f.type === this.financeFilter);
                 },
 
-                exportFinanceExcel() {
-                    let csvContent = "\uFEFFNgày,Loại,Danh Mục,Nội Dung,Số Tiền\n";
-                    this.finances.forEach(f => {
-                        let row = `"${f.date}","${f.type}","${f.category}","${f.note || ''}","${f.amount}"`;
-                        csvContent += row + "\n";
+                get filteredMonthlyCustomers() {
+                    const q = this.monthlySearch.toLowerCase();
+                    return this.checkins.filter(item => {
+                        const matchMonth = item.date && item.date.startsWith(this.selectedMonthFilter);
+                        const phone = this.getCustomerPhone(item.customerId).toLowerCase();
+                        const matchSearch = !q || (item.customerName && item.customerName.toLowerCase().includes(q)) || phone.includes(q);
+                        return matchMonth && matchSearch;
                     });
+                },
 
-                    let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                    let url = URL.createObjectURL(blob);
-                    let a = document.createElement('a');
-                    a.setAttribute('href', url);
-                    a.setAttribute('download', `Thu_Chi_MocAn_${new Date().toISOString().substring(0, 10)}.csv`);
-                    document.body.appendChild(a);
+                get filteredCheckins() {
+                    const q = this.checkinSearch.toLowerCase();
+                    return this.checkins.filter(item => {
+                        const matchMonth = item.date && item.date.startsWith(this.selectedMonthFilter);
+                        const phone = this.getCustomerPhone(item.customerId).toLowerCase();
+                        const matchSearch = !q || (item.customerName && item.customerName.toLowerCase().includes(q)) || phone.includes(q);
+                        return matchMonth && matchSearch;
+                    });
+                },
+
+                get filteredTreatmentsForCheckin() {
+                    const q = this.checkinModalSearch.toLowerCase();
+                    return this.treatments.filter(t => {
+                        if (t.status !== 'Đang thực hiện') return false;
+                        if (!q) return true;
+                        const phone = t.customerPhone ? t.customerPhone.toLowerCase() : '';
+                        return (t.customerName && t.customerName.toLowerCase().includes(q)) || phone.includes(q) || (t.packageName && t.packageName.toLowerCase().includes(q));
+                    });
+                },
+
+                resetCustomerForm() {
+                    this.customerForm = { 
+                        id: null, name: '', phone: '', dob: '', address: '', history: '',
+                        hasPayment: false, paymentType: 'single', singleAmount: 300000,
+                        singleTechnician: this.technicians.length > 0 ? this.technicians[0].name : '',
+                        packageName: 'Liệu trình cột sống 10 buổi', packageTotal: 5000000, packageSessions: 10, packagePaid: 2000000
+                    };
+                },
+
+                editCustomer(c) {
+                    this.customerForm = { ...c, hasPayment: false };
+                    this.openCustomerModal = true;
+                },
+
+                saveCustomer() {
+                    if (!this.customerForm.name || !this.customerForm.phone) {
+                        this.showToast('Vui lòng điền Họ tên và Số điện thoại!', 'fa-solid fa-triangle-exclamation');
+                        return;
+                    }
+                    const db = firebase.database();
+                    const custId = this.customerForm.id || db.ref('customers').push().key;
+                    const custData = {
+                        name: this.customerForm.name,
+                        phone: this.customerForm.phone,
+                        dob: this.customerForm.dob || '',
+                        address: this.customerForm.address || '',
+                        history: this.customerForm.history || 'Trị liệu cột sống / Cơ xương khớp'
+                    };
+
+                    const updates = {};
+                    updates[`customers/${custId}`] = custData;
+
+                    // Xử lý thanh toán ngay nếu có
+                    if (!this.customerForm.id && this.customerForm.hasPayment) {
+                        const nowStr = new Date().toISOString().split('T')[0] + ' ' + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+                        if (this.customerForm.paymentType === 'single') {
+                            const amt = Number(this.customerForm.singleAmount) || 300000;
+                            const checkinId = db.ref('checkins').push().key;
+                            updates[`checkins/${checkinId}`] = {
+                                customerId: custId,
+                                customerName: custData.name,
+                                treatmentId: 'single_session',
+                                treatmentName: 'Buổi lẻ trị liệu',
+                                sessionNumber: 1,
+                                technician: this.customerForm.singleTechnician || (this.technicians[0] ? this.technicians[0].name : 'KTV'),
+                                notes: 'Thanh toán buổi lẻ lúc tạo khách hàng',
+                                date: nowStr
+                            };
+                            const finId = db.ref('finances').push().key;
+                            updates[`finances/${finId}`] = {
+                                type: 'Thu',
+                                category: 'Doanh thu trị liệu cột sống & xương khớp',
+                                amount: amt,
+                                date: new Date().toISOString().split('T')[0],
+                                note: `Thu tiền buổi lẻ - ${custData.name}`
+                            };
+                        } else {
+                            const pkgTotal = Number(this.customerForm.packageTotal) || 5000000;
+                            const pkgSessions = Number(this.customerForm.packageSessions) || 10;
+                            const pkgPaid = Number(this.customerForm.packagePaid) || 2000000;
+                            const debt = pkgTotal - pkgPaid;
+                            const treatId = db.ref('treatments').push().key;
+                            updates[`treatments/${treatId}`] = {
+                                customerId: custId,
+                                customerName: custData.name,
+                                customerPhone: custData.phone,
+                                packageName: this.customerForm.packageName || 'Liệu trình cột sống',
+                                totalPrice: pkgTotal,
+                                totalSessions: pkgSessions,
+                                paidAmount: pkgPaid,
+                                remainingDebt: debt,
+                                completedSessions: 0,
+                                status: 'Đang thực hiện'
+                            };
+                            if (pkgPaid > 0) {
+                                const finId = db.ref('finances').push().key;
+                                updates[`finances/${finId}`] = {
+                                    type: 'Thu',
+                                    category: 'Thanh toán trả góp liệu trình',
+                                    amount: pkgPaid,
+                                    date: new Date().toISOString().split('T')[0],
+                                    note: `Thanh toán đợt 1 (${this.customerForm.packageName}) - ${custData.name}`
+                                };
+                            }
+                        }
+                    }
+
+                    db.ref().update(updates).then(() => {
+                        this.showToast('Lưu thông tin khách hàng thành công!');
+                        this.openCustomerModal = false;
+                    });
+                },
+
+                resetTechnicianForm() {
+                    this.technicianForm = { id: null, name: '', phone: '' };
+                },
+
+                editTechnician(tech) {
+                    this.technicianForm = { ...tech };
+                    this.openTechnicianModal = true;
+                },
+
+                saveTechnician() {
+                    if (!this.technicianForm.name) {
+                        this.showToast('Vui lòng nhập tên KTV!', 'fa-solid fa-triangle-exclamation');
+                        return;
+                    }
+                    const db = firebase.database();
+                    const techId = this.technicianForm.id || db.ref('technicians').push().key;
+                    db.ref(`technicians/${techId}`).set({
+                        name: this.technicianForm.name,
+                        phone: this.technicianForm.phone || ''
+                    }).then(() => {
+                        this.showToast('Lưu thông tin KTV thành công!');
+                        this.openTechnicianModal = false;
+                    });
+                },
+
+                resetFinanceForm() {
+                    this.financeForm = { type: 'Thu', category: 'Doanh thu trị liệu cột sống & xương khớp', amount: '', date: new Date().toISOString().split('T')[0], note: '' };
+                },
+
+                saveFinance() {
+                    if (!this.financeForm.amount) {
+                        this.showToast('Vui lòng nhập số tiền!', 'fa-solid fa-triangle-exclamation');
+                        return;
+                    }
+                    const db = firebase.database();
+                    const finId = db.ref('finances').push().key;
+                    db.ref(`finances/${finId}`).set(this.financeForm).then(() => {
+                        this.showToast('Đã tạo phiếu thu/chi thành công!');
+                        this.openFinanceModal = false;
+                    });
+                },
+
+                exportFinanceExcel() {
+                    let csv = '\uFEFFNgày,Loại,Danh Mục,Nội Dung,Số Tiền\n';
+                    this.filteredFinances.forEach(f => {
+                        csv += `"${f.date}","${f.type}","${f.category}","${f.note || ''}","${f.amount}"\n`;
+                    });
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `ThuChi_${this.selectedMonthFilter}.csv`;
                     a.click();
-                    document.body.removeChild(a);
-                    this.showToast('Đã xuất file báo cáo Thu Chi thành công!');
+                    this.showToast('Xuất file thành công!');
                 },
 
                 confirmResetFinanceMonth() {
@@ -1283,10 +1450,148 @@
 
                 executeResetFinance() {
                     const db = firebase.database();
-                    db.ref('finances').remove().then(() => {
-                        this.showToast('Đã reset dữ liệu Thu - Chi thành công cho tháng mới!');
+                    const updates = {};
+                    this.finances.forEach(f => {
+                        updates[`finances/${f.id}`] = null;
                     });
-                    this.confirmResetFinanceModal = false;
+                    db.ref().update(updates).then(() => {
+                        this.confirmResetFinanceModal = false;
+                        this.showToast('Đã reset toàn bộ phiếu thu chi!');
+                    });
+                },
+
+                resetTreatmentForm() {
+                    this.treatmentForm = { customerId: '', packageName: '', totalPrice: '', totalSessions: 10, paidAmount: '' };
+                },
+
+                saveTreatment() {
+                    if (!this.treatmentForm.customerId || !this.treatmentForm.packageName || !this.treatmentForm.totalPrice) {
+                        this.showToast('Vui lòng điền đủ thông tin liệu trình!', 'fa-solid fa-triangle-exclamation');
+                        return;
+                    }
+                    const cust = this.customers.find(c => c.id === this.treatmentForm.customerId);
+                    const total = Number(this.treatmentForm.totalPrice) || 0;
+                    const paid = Number(this.treatmentForm.paidAmount) || 0;
+                    const debt = total - paid;
+                    const sessions = Number(this.treatmentForm.totalSessions) || 10;
+
+                    const db = firebase.database();
+                    const tId = db.ref('treatments').push().key;
+                    const updates = {};
+                    updates[`treatments/${tId}`] = {
+                        customerId: cust.id,
+                        customerName: cust.name,
+                        customerPhone: cust.phone,
+                        packageName: this.treatmentForm.packageName,
+                        totalPrice: total,
+                        totalSessions: sessions,
+                        paidAmount: paid,
+                        remainingDebt: debt,
+                        completedSessions: 0,
+                        status: 'Đang thực hiện'
+                    };
+
+                    if (paid > 0) {
+                        const finId = db.ref('finances').push().key;
+                        updates[`finances/${finId}`] = {
+                            type: 'Thu',
+                            category: 'Thanh toán trả góp liệu trình',
+                            amount: paid,
+                            date: new Date().toISOString().split('T')[0],
+                            note: `Thanh toán đợt 1 (${this.treatmentForm.packageName}) - ${cust.name}`
+                        };
+                    }
+
+                    db.ref().update(updates).then(() => {
+                        this.showToast('Đã tạo gói liệu trình thành công!');
+                        this.openTreatmentModal = false;
+                    });
+                },
+
+                openInstallmentPayment(t) {
+                    this.currentTreatmentPayment = t;
+                    this.installmentAmount = '';
+                    this.openInstallmentModal = true;
+                },
+
+                payInstallment() {
+                    const amt = Number(this.installmentAmount) || 0;
+                    if (amt <= 0) {
+                        this.showToast('Vui lòng nhập số tiền thanh toán hợp lệ!', 'fa-solid fa-triangle-exclamation');
+                        return;
+                    }
+                    const t = this.currentTreatmentPayment;
+                    const newPaid = t.paidAmount + amt;
+                    const newDebt = Math.max(0, t.remainingDebt - amt);
+                    const newStatus = newDebt === 0 ? 'Hoàn thành' : t.status;
+
+                    const db = firebase.database();
+                    const updates = {};
+                    updates[`treatments/${t.id}/paidAmount`] = newPaid;
+                    updates[`treatments/${t.id}/remainingDebt`] = newDebt;
+                    updates[`treatments/${t.id}/status`] = newStatus;
+
+                    const finId = db.ref('finances').push().key;
+                    updates[`finances/${finId}`] = {
+                        type: 'Thu',
+                        category: 'Thanh toán trả góp liệu trình',
+                        amount: amt,
+                        date: new Date().toISOString().split('T')[0],
+                        note: `Đóng trả góp tiếp (${t.packageName}) - ${t.customerName}`
+                    };
+
+                    db.ref().update(updates).then(() => {
+                        this.showToast('Đã ghi nhận thanh toán trả góp thành công!');
+                        this.openInstallmentModal = false;
+                    });
+                },
+
+                resetCheckinForm() {
+                    this.checkinForm = { treatmentId: '', sessionNumber: 1, technician: this.technicians[0] ? this.technicians[0].name : '', notes: '' };
+                    this.checkinModalSearch = '';
+                },
+
+                onSelectTreatmentForCheckin() {
+                    const t = this.treatments.find(item => item.id === this.checkinForm.treatmentId);
+                    if (t) {
+                        this.checkinForm.sessionNumber = (t.completedSessions || 0) + 1;
+                    }
+                },
+
+                saveCheckin() {
+                    if (!this.checkinForm.treatmentId || !this.checkinForm.technician) {
+                        this.showToast('Vui lòng chọn liệu trình và KTV phụ trách!', 'fa-solid fa-triangle-exclamation');
+                        return;
+                    }
+                    const t = this.treatments.find(item => item.id === this.checkinForm.treatmentId);
+                    if (!t) return;
+
+                    const nowStr = new Date().toISOString().split('T')[0] + ' ' + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+                    const db = firebase.database();
+                    const updates = {};
+
+                    const checkinId = db.ref('checkins').push().key;
+                    updates[`checkins/${checkinId}`] = {
+                        customerId: t.customerId,
+                        customerName: t.customerName,
+                        treatmentId: t.id,
+                        treatmentName: t.packageName,
+                        sessionNumber: this.checkinForm.sessionNumber,
+                        technician: this.checkinForm.technician,
+                        notes: this.checkinForm.notes || '',
+                        date: nowStr
+                    };
+
+                    const newCompleted = t.completedSessions + 1;
+                    updates[`treatments/${t.id}/completedSessions`] = newCompleted;
+                    if (newCompleted >= t.totalSessions) {
+                        updates[`treatments/${t.id}/status`] = 'Hoàn thành';
+                    }
+
+                    db.ref().update(updates).then(() => {
+                        this.showToast('Check-in buổi trị liệu thành công!');
+                        this.openCheckinModal = false;
+                    });
                 },
 
                 confirmDelete(type, id, itemName) {
@@ -1296,310 +1601,10 @@
                 executeDelete() {
                     const { type, id } = this.confirmModal;
                     const db = firebase.database();
-
-                    if (type === 'checkin') {
-                        let chk = this.checkins.find(item => item.id === id);
-                        if (chk && chk.treatmentId && chk.treatmentId !== 'single_session') {
-                            let t = this.treatments.find(item => item.id === chk.treatmentId);
-                            if (t) {
-                                let newCompleted = Math.max(0, t.completedSessions - 1);
-                                db.ref(`treatments/${t.id}`).update({
-                                    completedSessions: newCompleted,
-                                    status: 'Đang thực hiện'
-                                });
-                            }
-                        }
-                    }
-
-                    let path = '';
-                    if (type === 'customer') path = 'customers';
-                    else if (type === 'treatment') path = 'treatments';
-                    else if (type === 'checkin') path = 'checkins';
-                    else if (type === 'finance') path = 'finances';
-                    else if (type === 'technician') path = 'technicians';
-
-                    if (path && id) {
-                        db.ref(`${path}/${id}`).remove().then(() => {
-                            this.showToast('Đã xóa thành công khỏi hệ thống!');
-                        });
-                    }
-                    this.confirmModal.show = false;
-                },
-
-                resetCustomerForm() {
-                    this.customerForm = { 
-                        id: null, 
-                        name: '', 
-                        phone: '', 
-                        dob: '', 
-                        address: '', 
-                        history: '',
-                        hasPayment: false,
-                        paymentType: 'single',
-                        singleAmount: 300000,
-                        singleTechnician: this.technicians[0]?.name || 'KTV. Lan Anh',
-                        packageName: 'Liệu trình cột sống 10 buổi',
-                        packageTotal: 5000000,
-                        packageSessions: 10,
-                        packagePaid: 2000000
-                    };
-                },
-                editCustomer(c) {
-                    this.customerForm = { ...c, hasPayment: false };
-                    this.openCustomerModal = true;
-                },
-                saveCustomer() {
-                    if (!this.customerForm.name || !this.customerForm.phone) {
-                        this.showToast('Vui lòng nhập họ tên và số điện thoại!', 'fa-solid fa-triangle-exclamation');
-                        return;
-                    }
-                    const db = firebase.database();
-                    if (this.customerForm.id) {
-                        let id = this.customerForm.id;
-                        let dataToUpdate = { ...this.customerForm };
-                        delete dataToUpdate.id;
-                        delete dataToUpdate.hasPayment;
-                        delete dataToUpdate.paymentType;
-                        db.ref(`customers/${id}`).update(dataToUpdate);
-                        this.showToast('Đã cập nhật thông tin khách hàng!');
-                    } else {
-                        let newCustRef = db.ref('customers').push();
-                        let newCustomerId = newCustRef.key;
-                        let newC = { 
-                            name: this.customerForm.name,
-                            phone: this.customerForm.phone,
-                            dob: this.customerForm.dob,
-                            address: this.customerForm.address,
-                            history: this.customerForm.history
-                        };
-                        newCustRef.set(newC);
-
-                        if (this.customerForm.hasPayment) {
-                            if (this.customerForm.paymentType === 'single') {
-                                let amt = this.customerForm.singleAmount || 300000;
-                                db.ref('finances').push({
-                                    type: 'Thu',
-                                    category: 'Doanh thu trị liệu buổi lẻ',
-                                    amount: amt,
-                                    date: new Date().toISOString().split('T')[0],
-                                    note: `Thu tiền buổi lẻ trị liệu - ${newC.name}`
-                                });
-
-                                db.ref('checkins').push({
-                                    customerId: newCustomerId,
-                                    customerName: newC.name,
-                                    treatmentId: 'single_session',
-                                    treatmentName: 'Buổi lẻ trị liệu trực tiếp',
-                                    sessionNumber: 1,
-                                    technician: this.customerForm.singleTechnician || 'KTV. Lan Anh',
-                                    notes: 'Thanh toán trực tiếp khi thêm khách hàng mới',
-                                    date: new Date().toISOString().replace('T', ' ').substring(0, 16)
-                                });
-                            } else {
-                                let total = this.customerForm.packageTotal || 5000000;
-                                let paid = this.customerForm.packagePaid || 0;
-                                let remaining = total - paid;
-                                let sessions = this.customerForm.packageSessions || 10;
-                                let pkgName = this.customerForm.packageName || 'Gói liệu trình trị liệu';
-
-                                db.ref('treatments').push({
-                                    customerId: newCustomerId,
-                                    customerName: newC.name,
-                                    customerPhone: newC.phone,
-                                    packageName: pkgName,
-                                    totalPrice: total,
-                                    paidAmount: paid,
-                                    remainingDebt: remaining > 0 ? remaining : 0,
-                                    totalSessions: sessions,
-                                    completedSessions: 0,
-                                    status: 'Đang thực hiện'
-                                });
-
-                                if (paid > 0) {
-                                    db.ref('finances').push({
-                                        type: 'Thu',
-                                        category: 'Thanh toán trả góp liệu trình',
-                                        amount: paid,
-                                        date: new Date().toISOString().split('T')[0],
-                                        note: `Thanh toán đợt 1 gói ${pkgName} - ${newC.name}`
-                                    });
-                                }
-                            }
-                        }
-
-                        this.showToast('Đã thêm khách hàng mới & xử lý thanh toán thành công!');
-                    }
-                    this.openCustomerModal = false;
-                    this.resetCustomerForm();
-                },
-
-                quickCheckinFromDashboard(c) {
-                    let custTreatments = this.treatments.filter(item => item.customerId === c.id && item.status === 'Đang thực hiện');
-                    if (custTreatments.length > 0) {
-                        this.resetCheckinForm();
-                        this.checkinForm.treatmentId = custTreatments[0].id;
-                        this.onSelectTreatmentForCheckin();
-                        this.openCheckinModal = true;
-                    }
-                },
-
-                resetTechnicianForm() {
-                    this.technicianForm = { id: null, name: '', phone: '' };
-                },
-                editTechnician(tech) {
-                    this.technicianForm = { ...tech };
-                    this.openTechnicianModal = true;
-                },
-                saveTechnician() {
-                    if (!this.technicianForm.name) {
-                        this.showToast('Vui lòng nhập tên kỹ thuật viên!', 'fa-solid fa-triangle-exclamation');
-                        return;
-                    }
-                    const db = firebase.database();
-                    if (this.technicianForm.id) {
-                        let id = this.technicianForm.id;
-                        db.ref(`technicians/${id}`).update({ name: this.technicianForm.name, phone: this.technicianForm.phone });
-                        this.showToast('Đã cập nhật tên KTV thành công!');
-                    } else {
-                        db.ref('technicians').push({ name: this.technicianForm.name, phone: this.technicianForm.phone });
-                        this.showToast('Đã thêm KTV mới thành công!');
-                    }
-                    this.openTechnicianModal = false;
-                    this.resetTechnicianForm();
-                },
-
-                resetFinanceForm() {
-                    this.financeForm = { type: 'Thu', category: 'Doanh thu trị liệu cột sống & xương khớp', amount: '', date: new Date().toISOString().split('T')[0], note: '' };
-                },
-                saveFinance() {
-                    if (!this.financeForm.amount || this.financeForm.amount <= 0) {
-                        this.showToast('Vui lòng nhập số tiền hợp lệ!', 'fa-solid fa-triangle-exclamation');
-                        return;
-                    }
-                    const db = firebase.database();
-                    db.ref('finances').push(this.financeForm);
-                    this.openFinanceModal = false;
-                    this.showToast('Đã ghi nhận phiếu thu/chi thành công!');
-                },
-
-                resetTreatmentForm() {
-                    this.treatmentForm = { customerId: '', packageName: '', totalPrice: '', totalSessions: 5, paidAmount: '' };
-                },
-                saveTreatment() {
-                    let c = this.customers.find(item => item.id == this.treatmentForm.customerId);
-                    if (!c || !this.treatmentForm.packageName || !this.treatmentForm.totalPrice) {
-                        this.showToast('Vui lòng điền đầy đủ thông tin liệu trình!', 'fa-solid fa-triangle-exclamation');
-                        return;
-                    }
-                    let paid = this.treatmentForm.paidAmount || 0;
-                    let remaining = this.treatmentForm.totalPrice - paid;
-                    const db = firebase.database();
-                    
-                    let newT = {
-                        customerId: c.id,
-                        customerName: c.name,
-                        customerPhone: c.phone,
-                        packageName: this.treatmentForm.packageName,
-                        totalPrice: this.treatmentForm.totalPrice,
-                        paidAmount: paid,
-                        remainingDebt: remaining > 0 ? remaining : 0,
-                        totalSessions: this.treatmentForm.totalSessions || 5,
-                        completedSessions: 0,
-                        status: 'Đang thực hiện'
-                    };
-                    db.ref('treatments').push(newT);
-
-                    if (paid > 0) {
-                        db.ref('finances').push({
-                            type: 'Thu',
-                            category: 'Thanh toán trả góp liệu trình',
-                            amount: paid,
-                            date: new Date().toISOString().split('T')[0],
-                            note: `Thanh toán đợt 1 gói ${newT.packageName} - ${c.name}`
-                        });
-                    }
-
-                    this.openTreatmentModal = false;
-                    this.showToast('Đã tạo gói liệu trình & trả góp thành công!');
-                },
-
-                openInstallmentPayment(t) {
-                    this.currentTreatmentPayment = t;
-                    this.installmentAmount = t.remainingDebt;
-                    this.openInstallmentModal = true;
-                },
-                payInstallment() {
-                    if (!this.installmentAmount || this.installmentAmount <= 0) {
-                        this.showToast('Vui lòng nhập số tiền đóng trả góp!', 'fa-solid fa-triangle-exclamation');
-                        return;
-                    }
-                    let t = this.treatments.find(item => item.id === this.currentTreatmentPayment.id);
-                    if (t) {
-                        let newPaid = t.paidAmount + this.installmentAmount;
-                        let newDebt = Math.max(0, t.remainingDebt - this.installmentAmount);
-                        
-                        const db = firebase.database();
-                        db.ref(`treatments/${t.id}`).update({
-                            paidAmount: newPaid,
-                            remainingDebt: newDebt
-                        });
-
-                        db.ref('finances').push({
-                            type: 'Thu',
-                            category: 'Thanh toán trả góp liệu trình',
-                            amount: this.installmentAmount,
-                            date: new Date().toISOString().split('T')[0],
-                            note: `Trả góp tiếp gói ${t.packageName} - ${t.customerName}`
-                        });
-
-                        this.openInstallmentModal = false;
-                        this.showToast('Đã ghi nhận thanh toán trả góp thành công!');
-                    }
-                },
-
-                resetCheckinForm() {
-                    this.checkinForm = { treatmentId: '', sessionNumber: 1, technician: this.technicians[0]?.name || 'KTV. Lan Anh', notes: '' };
-                    this.checkinModalSearch = '';
-                },
-                onSelectTreatmentForCheckin() {
-                    let t = this.treatments.find(item => item.id == this.checkinForm.treatmentId);
-                    if (t) {
-                        this.checkinForm.sessionNumber = Math.min(t.totalSessions, t.completedSessions + 1);
-                    }
-                },
-                saveCheckin() {
-                    let t = this.treatments.find(item => item.id == this.checkinForm.treatmentId);
-                    if (!t) {
-                        this.showToast('Vui lòng chọn liệu trình hợp lệ!', 'fa-solid fa-triangle-exclamation');
-                        return;
-                    }
-
-                    let nextSession = Math.min(t.totalSessions, t.completedSessions + 1);
-                    const db = firebase.database();
-
-                    let newChk = {
-                        customerId: t.customerId,
-                        customerName: t.customerName,
-                        treatmentId: t.id,
-                        treatmentName: t.packageName,
-                        sessionNumber: nextSession,
-                        technician: this.checkinForm.technician || this.technicians[0]?.name,
-                        notes: this.checkinForm.notes,
-                        date: new Date().toISOString().replace('T', ' ').substring(0, 16)
-                    };
-
-                    db.ref('checkins').push(newChk);
-
-                    let updatedCompleted = nextSession;
-                    let updatedStatus = updatedCompleted >= t.totalSessions ? 'Hoàn thành' : 'Đang thực hiện';
-                    
-                    db.ref(`treatments/${t.id}`).update({
-                        completedSessions: updatedCompleted,
-                        status: updatedStatus
+                    db.ref(`${type === 'customer' ? 'customers' : type === 'finance' ? 'finances' : type === 'treatment' ? 'treatments' : type === 'checkin' ? 'checkins' : 'technicians'}/${id}`).remove().then(() => {
+                        this.confirmModal.show = false;
+                        this.showToast('Đã xóa thành công!');
                     });
-
-                    this.openCheckinModal = false;
-                    this.showToast('Check-in buổi trị liệu thành công!');
                 }
             }
         }
