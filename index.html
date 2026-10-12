@@ -116,7 +116,7 @@
 
             <div class="p-4 md:p-8 space-y-6 flex-1">
 
-                <!-- TAB 1: DASHBOARD -->
+                <!-- TAB 1: TỔNG QUAN -->
                 <div x-show="activeTab === 'dashboard'" class="space-y-6" x-cloak>
                     <!-- Welcome Banner & Thanh tìm kiếm trực tiếp tại Tổng quan -->
                     <div class="bg-gradient-to-r from-brand-600 to-brand-500 rounded-2xl p-6 text-white shadow-lg shadow-brand-500/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -130,9 +130,9 @@
                                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                     <i class="fa-solid fa-search"></i>
                                 </span>
-                                <input type="text" x-model="dashboardSearch" placeholder="Tra cứu nhanh khách hàng..." class="w-full sm:w-64 pl-9 pr-3 py-2 bg-white/10 placeholder-brand-100 text-white text-sm rounded-xl border border-white/20 focus:outline-none focus:bg-white/20">
+                                <input type="text" x-model="dashboardSearch" placeholder="Tra cứu nhanh (Tên hoặc SĐT)..." class="w-full sm:w-64 pl-9 pr-3 py-2 bg-white/10 placeholder-brand-100 text-white text-sm rounded-xl border border-white/25 focus:outline-none focus:bg-white/20">
                             </div>
-                            <button @click="activeTab = 'customers'; openCustomerModal = true" class="bg-white text-brand-600 hover:bg-brand-50 px-4 py-2 rounded-xl font-semibold text-sm shadow transition flex items-center justify-center space-x-2">
+                            <button @click="resetCustomerForm(); openCustomerModal = true" class="bg-white text-brand-600 hover:bg-brand-50 px-4 py-2 rounded-xl font-semibold text-sm shadow transition flex items-center justify-center space-x-2">
                                 <i class="fa-solid fa-user-plus"></i>
                                 <span>Thêm Khách Hàng</span>
                             </button>
@@ -216,14 +216,14 @@
                     </div>
                 </div>
 
-                <!-- TAB 2: QUẢN LÝ KHÁCH HÀNG -->
+                <!-- TAB 2: KHÁCH HÀNG -->
                 <div x-show="activeTab === 'customers'" class="space-y-6" x-cloak>
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                         <div class="relative w-full sm:w-80">
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                 <i class="fa-solid fa-search"></i>
                             </span>
-                            <input type="text" x-model="customerSearch" placeholder="Tìm theo tên, số điện thoại..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                            <input type="text" x-model="customerSearch" placeholder="Tìm kiếm (Tên hoặc SĐT)..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
                         </div>
                         <button @click="resetCustomerForm(); openCustomerModal = true" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition flex items-center space-x-2 w-full sm:w-auto justify-center">
                             <i class="fa-solid fa-user-plus"></i>
@@ -261,7 +261,7 @@
                                             </td>
                                             <td class="p-4 text-center space-x-1">
                                                 <!-- Nút Xem Hồ Sơ & Lịch Sử Trị Liệu -->
-                                                <button @click="viewCustomerDetail(c)" class="p-2 text-brand-600 hover:bg-brand-50 rounded-lg transition" title="Xem hồ sơ & Lịch sử trị liệu">
+                                                <button @click="viewCustomerDetail(c)" class="p-2 text-brand-600 hover:bg-brand-50 rounded-lg transition" title="Xem hồ sơ trị liệu">
                                                     <i class="fa-solid fa-folder-open"></i>
                                                 </button>
                                                 <button @click="editCustomer(c)" class="p-2 text-slate-500 hover:text-brand-600 hover:bg-slate-50 rounded-lg transition" title="Sửa">
@@ -296,7 +296,7 @@
                             <h3 class="text-2xl font-bold text-red-600 mt-1" x-text="formatCurrency(stats.totalExpense)"></h3>
                         </div>
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                            <p class="text-xs font-semibold text-slate-400 uppercase">Lợi Nhuận Ròng</p>
+                            <p class="text-xs font-semibold text-slate-400 uppercase">Lợi Nhuận</p>
                             <h3 class="text-2xl font-bold text-brand-600 mt-1" x-text="formatCurrency(stats.totalProfit)"></h3>
                         </div>
                     </div>
@@ -364,18 +364,23 @@
                     </div>
                 </div>
 
-                <!-- TAB 4: LIỆU TRÌNH & THANH TOÁN NHIỀU LẦN -->
+                <!-- TAB 4: LIỆU TRÌNH & THANH TOÁN -->
                 <div x-show="activeTab === 'treatments'" class="space-y-6" x-cloak>
-                    <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                        <h3 class="font-bold text-slate-800">Danh Sách Gói Liệu Trình Trị Liệu & Trả Góp</h3>
-                        <button @click="resetTreatmentForm(); openTreatmentModal = true" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition flex items-center space-x-2">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="relative w-full sm:w-80">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-search"></i>
+                            </span>
+                            <input type="text" x-model="treatmentSearch" placeholder="Tìm kiếm liệu trình (Tên, SĐT)..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                        </div>
+                        <button @click="resetTreatmentForm(); openTreatmentModal = true" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition flex items-center space-x-2 w-full sm:w-auto justify-center">
                             <i class="fa-solid fa-folder-plus"></i>
                             <span>Tạo Liệu Trình Mới</span>
                         </button>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <template x-for="t in treatments" :key="t.id">
+                        <template x-for="t in filteredTreatments" :key="t.id">
                             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between space-y-4">
                                 <div>
                                     <div class="flex justify-between items-start">
@@ -395,7 +400,7 @@
                                             <span class="font-bold text-emerald-600" x-text="formatCurrency(t.paidAmount)"></span>
                                         </div>
                                         <div class="flex justify-between">
-                                            <span class="text-slate-500">Còn nợ (Trả góp):</span>
+                                            <span class="text-slate-500">Còn nợ:</span>
                                             <span class="font-bold text-red-600" x-text="formatCurrency(t.remainingDebt)"></span>
                                         </div>
                                         <div class="flex justify-between">
@@ -416,8 +421,8 @@
                                 </div>
                             </div>
                         </template>
-                        <template x-if="treatments.length === 0">
-                            <div class="col-span-full text-center py-12 text-slate-400">Chưa có gói liệu trình nào được tạo.</div>
+                        <template x-if="filteredTreatments.length === 0">
+                            <div class="col-span-full text-center py-12 text-slate-400">Không tìm thấy liệu trình nào phù hợp.</div>
                         </template>
                     </div>
                 </div>
@@ -427,7 +432,7 @@
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                         <!-- Lọc theo tháng -->
                         <div class="flex items-center space-x-3 w-full sm:w-auto">
-                            <label class="text-xs font-semibold text-slate-600 uppercase">Tháng:</label>
+                            <label class="text-xs font-semibold text-slate-600 uppercase">Chọn tháng:</label>
                             <input type="month" x-model="selectedMonthFilter" class="px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
                         </div>
                         <!-- Thanh tìm kiếm realtime -->
@@ -435,38 +440,38 @@
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                 <i class="fa-solid fa-search"></i>
                             </span>
-                            <input type="text" x-model="monthlySearch" placeholder="Tìm theo tên hoặc SĐT khách hàng..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                            <input type="text" x-model="monthlySearch" placeholder="Tìm kiếm (Tên hoặc SĐT)..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
                         </div>
                     </div>
 
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                         <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                            <span class="text-xs font-semibold text-slate-600 uppercase">Danh sách khách hàng phát sinh điều trị trong tháng <span class="text-brand-600 font-bold" x-text="selectedMonthFilter"></span></span>
+                            <span class="text-xs font-semibold text-slate-600 uppercase">Danh sách khách hàng từ ngày gần nhất đến xa trong tháng <span class="text-brand-600 font-bold" x-text="selectedMonthFilter"></span></span>
                             <span class="text-xs text-slate-500 font-medium" x-text="'Tổng số lượt: ' + filteredMonthlyCustomers.length"></span>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                        <th class="p-4">Ngày Giờ (Gần nhất → Xa)</th>
                                         <th class="p-4">Họ Tên Khách Hàng</th>
                                         <th class="p-4">Số Điện Thoại</th>
-                                        <th class="p-4">Hình Thức Điều Trị</th>
+                                        <th class="p-4">Hình Thức</th>
                                         <th class="p-4">Tên Dịch Vụ / Buổi Trị Liệu</th>
-                                        <th class="p-4">Ngày Giờ Check-in / Điều Trị</th>
-                                        <th class="p-4">Kỹ Thuật Viên Phụ Trách</th>
+                                        <th class="p-4">Kỹ Thuật Viên</th>
                                         <th class="p-4 text-center">Thao Tác</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100 text-sm">
                                     <template x-for="item in filteredMonthlyCustomers" :key="item.id">
                                         <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="p-4 text-slate-600 text-xs font-semibold" x-text="item.date"></td>
                                             <td class="p-4 font-bold text-slate-900" x-text="item.customerName"></td>
                                             <td class="p-4 text-slate-600" x-text="getCustomerPhone(item.customerId)"></td>
                                             <td class="p-4">
-                                                <span :class="item.treatmentId === 'single_session' ? 'bg-amber-100 text-amber-800' : 'bg-brand-100 text-brand-800'" class="px-2.5 py-1 rounded-full text-xs font-bold" x-text="item.treatmentId === 'single_session' ? 'Buổi lẻ' : 'Liệu trình trọn gói'"></span>
+                                                <span :class="item.treatmentId === 'single_session' ? 'bg-amber-100 text-amber-800' : 'bg-brand-100 text-brand-800'" class="px-2.5 py-1 rounded-full text-xs font-bold" x-text="item.treatmentId === 'single_session' ? 'Buổi lẻ' : 'Liệu trình'"></span>
                                             </td>
                                             <td class="p-4 font-medium text-brand-600" x-text="item.treatmentName"></td>
-                                            <td class="p-4 text-slate-600 text-xs" x-text="item.date"></td>
                                             <td class="p-4 text-slate-700 font-medium" x-text="item.technician"></td>
                                             <td class="p-4 text-center">
                                                 <button @click="confirmDelete('checkin', item.id, 'Lượt điều trị của ' + item.customerName)" class="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Xóa">
@@ -477,7 +482,7 @@
                                     </template>
                                     <template x-if="filteredMonthlyCustomers.length === 0">
                                         <tr>
-                                            <td colspan="7" class="text-center py-8 text-slate-400">Không tìm thấy khách hàng nào điều trị trong tháng này phù hợp với tìm kiếm.</td>
+                                            <td colspan="7" class="text-center py-8 text-slate-400">Không tìm thấy khách hàng nào trong tháng này.</td>
                                         </tr>
                                     </template>
                                 </tbody>
@@ -486,32 +491,27 @@
                     </div>
                 </div>
 
-                <!-- TAB 6: CHECK-IN & THEO DÕI BUỔI TRỊ LIỆU -->
+                <!-- TAB 6: CHECK-IN & KTV -->
                 <div x-show="activeTab === 'checkin'" class="space-y-6" x-cloak>
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                            <!-- Chọn tháng -->
-                            <div class="flex items-center space-x-2">
-                                <label class="text-xs font-semibold text-slate-600 uppercase">Chọn Tháng:</label>
-                                <input type="month" x-model="selectedMonthFilter" class="px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
-                            </div>
-                            <!-- Thanh tìm kiếm theo tên hoặc sđt khách hàng -->
-                            <div class="relative w-full sm:w-64">
+                            <!-- Thanh tìm kiếm khách hàng (Tên hoặc SĐT) -->
+                            <div class="relative w-full sm:w-80">
                                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                     <i class="fa-solid fa-search"></i>
                                 </span>
-                                <input type="text" x-model="checkinSearch" placeholder="Tìm tên hoặc SĐT khách..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                                <input type="text" x-model="checkinSearch" placeholder="Tìm kiếm khách hàng (Tên hoặc SĐT)..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
                             </div>
                         </div>
                         <button @click="resetCheckinForm(); openCheckinModal = true" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition flex items-center space-x-2 w-full md:w-auto justify-center">
                             <i class="fa-solid fa-clipboard-user"></i>
-                            <span>Check-in Buổi Mới</span>
+                            <span>Check-in buổi mới</span>
                         </button>
                     </div>
 
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                         <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                            <span class="text-xs font-semibold text-slate-600 uppercase">Lịch sử check-in trị liệu trong tháng <span class="text-brand-600 font-bold" x-text="selectedMonthFilter"></span></span>
+                            <span class="text-xs font-semibold text-slate-600 uppercase">Danh sách liệu trình & Check-in</span>
                             <span class="text-xs text-slate-500 font-medium" x-text="'Tổng số lượt: ' + filteredCheckins.length"></span>
                         </div>
                         <div class="overflow-x-auto">
@@ -524,7 +524,7 @@
                                         <th class="p-4">Liệu Trình</th>
                                         <th class="p-4">Buổi Thứ</th>
                                         <th class="p-4">Kỹ Thuật Viên</th>
-                                        <th class="p-4">Ghi Chú Trị Liệu / Cơ Xương Khớp</th>
+                                        <th class="p-4">Ghi Chú Trị Liệu</th>
                                         <th class="p-4 text-center">Thao Tác</th>
                                     </tr>
                                 </thead>
@@ -549,7 +549,7 @@
                                     </template>
                                     <template x-if="filteredCheckins.length === 0">
                                         <tr>
-                                            <td colspan="8" class="text-center py-8 text-slate-400">Không tìm thấy lượt điều trị nào trong tháng này phù hợp với tìm kiếm.</td>
+                                            <td colspan="8" class="text-center py-8 text-slate-400">Không tìm thấy lượt check-in nào.</td>
                                         </tr>
                                     </template>
                                 </tbody>
@@ -558,7 +558,7 @@
                     </div>
                 </div>
 
-                <!-- TAB 7: QUẢN LÝ KỸ THUẬT VIÊN (KTV) -->
+                <!-- TAB 7: QUẢN LÝ KTV -->
                 <div x-show="activeTab === 'technicians'" class="space-y-6" x-cloak>
                     <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                         <div>
@@ -567,7 +567,7 @@
                         </div>
                         <button @click="resetTechnicianForm(); openTechnicianModal = true" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition flex items-center space-x-2">
                             <i class="fa-solid fa-user-nurse"></i>
-                            <span>Thêm KTV Mới</span>
+                            <span>Thêm KTV</span>
                         </button>
                     </div>
 
@@ -584,10 +584,10 @@
                                     </div>
                                 </div>
                                 <div class="flex space-x-1">
-                                    <button @click="editTechnician(tech)" class="p-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition" title="Sửa tên KTV">
+                                    <button @click="editTechnician(tech)" class="p-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition" title="Sửa">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </button>
-                                    <button @click="confirmDelete('technician', tech.id, tech.name)" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition" title="Xóa KTV">
+                                    <button @click="confirmDelete('technician', tech.id, tech.name)" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition" title="Xóa">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
@@ -596,7 +596,7 @@
                     </div>
                 </div>
 
-                <!-- TAB 8: CẤU HÌNH FIREBASE REALTIME DATABASE -->
+                <!-- TAB 8: CẤU HÌNH FIREBASE -->
                 <div x-show="activeTab === 'cloud'" class="space-y-6 max-w-2xl mx-auto" x-cloak>
                     <div class="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
                         <div>
@@ -697,7 +697,7 @@
 
             <!-- Lịch sử các buổi trị liệu / check-in -->
             <div class="space-y-3">
-                <h4 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-calendar-check text-emerald-600 mr-2"></i> Lịch Sử Check-in & Điều Trị</h4>
+                <h4 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-calendar-check text-emerald-600 mr-2"></i> Lịch Sử Check-in & Trị Liệu</h4>
                 <div class="space-y-2 max-h-48 overflow-y-auto">
                     <template x-for="item in checkins.filter(c => c.customerId === selectedCustomerDetail.id)" :key="item.id">
                         <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs flex justify-between items-center">
@@ -709,7 +709,7 @@
                         </div>
                     </template>
                     <div x-show="checkins.filter(c => c.customerId === selectedCustomerDetail.id).length === 0" class="text-center py-3 text-slate-400 text-xs italic">
-                        Chưa có lịch sử check-in trị liệu nào.
+                        Chưa có lịch sử trị liệu nào.
                     </div>
                 </div>
             </div>
@@ -758,7 +758,7 @@
     <div x-show="openTechnicianModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" x-cloak>
         <div @click.away="openTechnicianModal = false" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-lg text-slate-900" x-text="technicianForm.id ? 'Chỉnh Sửa Tên KTV' : 'Thêm Kỹ Thuật Viên Mới'"></h3>
+                <h3 class="font-bold text-lg text-slate-900" x-text="technicianForm.id ? 'Chỉnh Sửa KTV' : 'Thêm Kỹ Thuật Viên'"></h3>
                 <button @click="openTechnicianModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="space-y-4">
@@ -778,11 +778,11 @@
         </div>
     </div>
 
-    <!-- MODAL: THÊM / SỬA KHÁCH HÀNG -->
+    <!-- MODAL: THÊM / SỬA KHÁCH HÀNG & THANH TOÁN -->
     <div x-show="openCustomerModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 overflow-y-auto" x-cloak>
         <div @click.away="openCustomerModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 my-8 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-lg text-slate-900" x-text="customerForm.id ? 'Sửa Thông Tin Khách Hàng' : 'Thêm Khách Hàng & Thanh Toán Mới'"></h3>
+                <h3 class="font-bold text-lg text-slate-900" x-text="customerForm.id ? 'Sửa Thông Tin Khách Hàng' : 'Thêm Khách Hàng Mới'"></h3>
                 <button @click="openCustomerModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="space-y-4">
@@ -805,38 +805,38 @@
                     <input type="text" x-model="customerForm.address" placeholder="Quận 1, TP. HCM" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Lịch Sử Trị Liệu / Dịch Vụ</label>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Lịch Sử Trị Liệu</label>
                     <input type="text" x-model="customerForm.history" placeholder="Trị liệu cột sống cổ, nắn chỉnh..." class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
                 </div>
 
-                <!-- PHẦN TÍCH HỢP THANH TOÁN -->
+                <!-- PHẦN THANH TOÁN BUỔI LẺ HOẶC LIỆU TRÌNH -->
                 <template x-if="!customerForm.id">
                     <div class="p-4 bg-brand-50/60 rounded-xl border border-brand-100 space-y-3">
                         <div class="flex items-center justify-between">
-                            <span class="font-bold text-xs uppercase text-brand-800"><i class="fa-solid fa-file-invoice-dollar mr-1"></i> Thanh toán ngay (Tùy chọn)</span>
+                            <span class="font-bold text-xs uppercase text-brand-800"><i class="fa-solid fa-file-invoice-dollar mr-1"></i> Hiển thị thanh toán Buổi lẻ hoặc Liệu trình</span>
                             <label class="flex items-center space-x-2 text-xs font-semibold text-brand-700 cursor-pointer">
                                 <input type="checkbox" x-model="customerForm.hasPayment" class="rounded text-brand-600 focus:ring-brand-500">
-                                <span>Thanh toán lúc tạo KH</span>
+                                <span>Thanh toán ngay</span>
                             </label>
                         </div>
                         
                         <div x-show="customerForm.hasPayment" class="space-y-3 pt-2" x-cloak>
                             <div>
-                                <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Hình Thức Thanh Toán</label>
+                                <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Chọn Hình Thức Thanh Toán</label>
                                 <select x-model="customerForm.paymentType" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:border-brand-500">
-                                    <option value="single">Thanh toán buổi lẻ (Check-in ngay)</option>
-                                    <option value="package">Mua gói liệu trình (Tạo liệu trình & Trả góp)</option>
+                                    <option value="single">Thanh toán Buổi Lẻ (Check-in ngay)</option>
+                                    <option value="package">Thanh toán Liệu Trình (Tạo liệu trình trọn gói)</option>
                                 </select>
                             </div>
 
                             <!-- Thanh toán buổi lẻ -->
                             <div x-show="customerForm.paymentType === 'single'" class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Số Tiền Buổi Lẻ (VNĐ)</label>
+                                    <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Số Tiền (VNĐ)</label>
                                     <input type="number" x-model.number="customerForm.singleAmount" placeholder="300000" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none">
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Kỹ Thuật Viên Phụ Trách</label>
+                                    <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">KTV Phụ Trách</label>
                                     <select x-model="customerForm.singleTechnician" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none">
                                         <template x-for="tech in technicians" :key="tech.id">
                                             <option :value="tech.name" x-text="tech.name"></option>
@@ -857,11 +857,11 @@
                                         <input type="number" x-model.number="customerForm.packageTotal" placeholder="5000000" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm bg-white">
                                     </div>
                                     <div>
-                                        <label class="block text-[10px] font-semibold text-slate-600 uppercase mb-1">Tổng Số Buổi</label>
+                                        <label class="block text-[10px] font-semibold text-slate-600 uppercase mb-1">Số Buổi</label>
                                         <input type="number" x-model.number="customerForm.packageSessions" placeholder="10" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm bg-white">
                                     </div>
                                     <div>
-                                        <label class="block text-[10px] font-semibold text-slate-600 uppercase mb-1">Thanh Toán Trước</label>
+                                        <label class="block text-[10px] font-semibold text-slate-600 uppercase mb-1">Thanh Toán</label>
                                         <input type="number" x-model.number="customerForm.packagePaid" placeholder="2000000" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-sm bg-white">
                                     </div>
                                 </div>
@@ -878,7 +878,7 @@
         </div>
     </div>
 
-    <!-- MODAL: THÊM PHIẾU THU - CHI -->
+    <!-- MODAL: TẠO PHIẾU THU - CHI -->
     <div x-show="openFinanceModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" x-cloak>
         <div @click.away="openFinanceModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -917,7 +917,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nội Dung / Diễn Giải</label>
-                    <input type="text" x-model="financeForm.note" placeholder="Khách Nguyễn Văn A thanh toán đợt 1..." class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                    <input type="text" x-model="financeForm.note" placeholder="Khách thanh toán..." class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
                 </div>
             </div>
             <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100">
@@ -927,11 +927,11 @@
         </div>
     </div>
 
-    <!-- MODAL: TẠO GÓI LIỆU TRÌNH & TRẢ GÓP -->
+    <!-- MODAL: TẠO GÓI LIỆU TRÌNH MỚI -->
     <div x-show="openTreatmentModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" x-cloak>
         <div @click.away="openTreatmentModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-lg text-slate-900">Tạo Gói Liệu Trình Trị Liệu & Thanh Toán</h3>
+                <h3 class="font-bold text-lg text-slate-900">Tạo Liệu Trình Mới</h3>
                 <button @click="openTreatmentModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="space-y-4">
@@ -945,8 +945,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tên Gói Liệu Trình *</label>
-                    <input type="text" x-model="treatmentForm.packageName" placeholder="Liệu trình Trị liệu Cột sống Cổ - Lưng 10 buổi" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tên Liệu Trình *</label>
+                    <input type="text" x-model="treatmentForm.packageName" placeholder="Liệu trình Trị liệu Cột sống 10 buổi" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -959,10 +959,9 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Đã Thanh Toán Đợt 1 (VNĐ)</label>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Thanh Toán Trước (VNĐ)</label>
                     <input type="number" x-model.number="treatmentForm.paidAmount" placeholder="2000000" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
                 </div>
-                <p class="text-xs text-brand-600 font-medium">💡 Số tiền còn lại sẽ tự động tính vào công nợ trả góp cho khách hàng.</p>
             </div>
             <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100">
                 <button @click="openTreatmentModal = false" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">Hủy</button>
@@ -975,7 +974,7 @@
     <div x-show="openInstallmentModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" x-cloak>
         <div @click.away="openInstallmentModal = false" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-lg text-slate-900">Thanh Toán Trả Góp Đợt Tiếp</h3>
+                <h3 class="font-bold text-lg text-slate-900">Thanh Toán Trả Góp</h3>
                 <button @click="openInstallmentModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="space-y-4">
@@ -985,7 +984,7 @@
                     <p class="text-red-600 font-bold mt-2">Công nợ hiện tại: <span x-text="formatCurrency(currentTreatmentPayment.remainingDebt)"></span></p>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Số Tiền Thanh Toán Đợt Này (VNĐ) *</label>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Số Tiền Thanh Toán (VNĐ) *</label>
                     <input type="number" x-model.number="installmentAmount" placeholder="1000000" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
                 </div>
             </div>
@@ -996,24 +995,19 @@
         </div>
     </div>
 
-    <!-- MODAL: CHECK-IN & CHỌN KTV -->
+    <!-- MODAL: CHECK-IN BUỔI MỚI & CHỌN KTV -->
     <div x-show="openCheckinModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" x-cloak>
         <div @click.away="openCheckinModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-lg text-slate-900">Check-in Buổi Trị Liệu & Chọn KTV</h3>
+                <h3 class="font-bold text-lg text-slate-900">Check-in Buổi Mới & Chọn KTV</h3>
                 <button @click="openCheckinModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-brand-700 uppercase mb-1">🔍 Tìm nhanh tên hoặc SĐT khách hàng</label>
-                    <input type="text" x-model="checkinModalSearch" placeholder="Gõ tên hoặc SĐT để lọc liệu trình..." class="w-full px-3.5 py-2 border border-brand-200 bg-brand-50/40 rounded-xl text-sm focus:outline-none focus:border-brand-500 mb-2">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Chọn Liệu Trình Đang Chạy *</label>
+                    <label class="block text-xs font-semibold text-brand-700 uppercase mb-1">🔍 Chọn Liệu Trình Khách Hàng</label>
                     <select x-model="checkinForm.treatmentId" @change="onSelectTreatmentForCheckin" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
-                        <option value="">-- Chọn liệu trình khách hàng --</option>
-                        <template x-for="t in filteredTreatmentsForCheckin" :key="t.id">
+                        <option value="">-- Chọn liệu trình đang thực hiện --</option>
+                        <template x-for="t in treatments.filter(item => item.status === 'Đang thực hiện')" :key="t.id">
                             <option :value="t.id" x-text="t.customerName + ' (' + t.customerPhone + ') - ' + t.packageName + ' (Còn ' + (t.totalSessions - t.completedSessions) + ' buổi)'"></option>
                         </template>
                     </select>
@@ -1024,7 +1018,7 @@
                         <input type="number" x-model.number="checkinForm.sessionNumber" readonly class="w-full px-3.5 py-2 bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-600">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Kỹ Thuật Viên (KTV) *</label>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Kỹ Thuật Viên *</label>
                         <select x-model="checkinForm.technician" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
                             <template x-for="tech in technicians" :key="tech.id">
                                 <option :value="tech.name" x-text="tech.name"></option>
@@ -1033,8 +1027,8 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Ghi Chú Trị Liệu / Cơ Xương Khớp</label>
-                    <textarea x-model="checkinForm.notes" rows="3" placeholder="Đau mỏi vùng cổ vai gáy, đã nắn chỉnh đốt sống C5-C6..." class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500"></textarea>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Ghi Chú Trị Liệu</label>
+                    <textarea x-model="checkinForm.notes" rows="3" placeholder="Đau mỏi vùng cổ vai gáy..." class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500"></textarea>
                 </div>
             </div>
             <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100">
@@ -1079,7 +1073,7 @@
                 checkinSearch: '',
                 monthlySearch: '',
                 dashboardSearch: '',
-                checkinModalSearch: '',
+                treatmentSearch: '',
 
                 firebaseConfigInput: {
                     apiKey: "AIzaSyDMKlhIDGj0Lrsyghb5EPZbFNShOk79XME",
@@ -1126,7 +1120,7 @@
                 },
                 technicianForm: { id: null, name: '', phone: '' },
                 financeForm: { type: 'Thu', category: 'Doanh thu trị liệu cột sống & xương khớp', amount: '', date: new Date().toISOString().split('T')[0], note: '' },
-                treatmentForm: { customerId: '', packageName: '', totalPrice: '', totalSessions: 5, paidAmount: '' },
+                treatmentForm: { customerId: '', packageName: '', totalPrice: '', totalSessions: 10, paidAmount: '' },
                 currentTreatmentPayment: { id: null, customerName: '', packageName: '', remainingDebt: 0 },
                 installmentAmount: '',
                 checkinForm: { treatmentId: '', sessionNumber: 1, technician: '', notes: '' },
@@ -1242,7 +1236,6 @@
                     const currentMonthStr = new Date().toISOString().substring(0, 7);
                     const currentMonthRev = this.finances.filter(f => f.type === 'Thu' && f.date && f.date.startsWith(currentMonthStr)).reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
                     
-                    // Lượt khách trong tháng: đếm tổng check-in + khách lẻ trong tháng được chọn
                     const monthlyVisits = this.checkins.filter(item => item.date && item.date.startsWith(this.selectedMonthFilter)).length;
 
                     return {
@@ -1265,9 +1258,17 @@
                     return this.finances.filter(f => f.type === this.financeFilter);
                 },
 
+                get filteredTreatments() {
+                    if (!this.treatmentSearch.trim()) return this.treatments;
+                    const q = this.treatmentSearch.toLowerCase();
+                    return this.treatments.filter(t => (t.customerName && t.customerName.toLowerCase().includes(q)) || (t.customerPhone && t.customerPhone.includes(q)) || (t.packageName && t.packageName.toLowerCase().includes(q)));
+                },
+
                 get filteredMonthlyCustomers() {
                     const q = this.monthlySearch.toLowerCase();
-                    return this.checkins.filter(item => {
+                    // Sắp xếp từ ngày gần nhất đến xa
+                    const sorted = [...this.checkins].sort((a, b) => new Date(b.date) - new Date(a.date));
+                    return sorted.filter(item => {
                         const matchMonth = item.date && item.date.startsWith(this.selectedMonthFilter);
                         const phone = this.getCustomerPhone(item.customerId).toLowerCase();
                         const matchSearch = !q || (item.customerName && item.customerName.toLowerCase().includes(q)) || phone.includes(q);
@@ -1277,21 +1278,11 @@
 
                 get filteredCheckins() {
                     const q = this.checkinSearch.toLowerCase();
-                    return this.checkins.filter(item => {
-                        const matchMonth = item.date && item.date.startsWith(this.selectedMonthFilter);
+                    const sorted = [...this.checkins].sort((a, b) => new Date(b.date) - new Date(a.date));
+                    return sorted.filter(item => {
                         const phone = this.getCustomerPhone(item.customerId).toLowerCase();
                         const matchSearch = !q || (item.customerName && item.customerName.toLowerCase().includes(q)) || phone.includes(q);
-                        return matchMonth && matchSearch;
-                    });
-                },
-
-                get filteredTreatmentsForCheckin() {
-                    const q = this.checkinModalSearch.toLowerCase();
-                    return this.treatments.filter(t => {
-                        if (t.status !== 'Đang thực hiện') return false;
-                        if (!q) return true;
-                        const phone = t.customerPhone ? t.customerPhone.toLowerCase() : '';
-                        return (t.customerName && t.customerName.toLowerCase().includes(q)) || phone.includes(q) || (t.packageName && t.packageName.toLowerCase().includes(q));
+                        return matchSearch;
                     });
                 },
 
@@ -1327,7 +1318,6 @@
                     const updates = {};
                     updates[`customers/${custId}`] = custData;
 
-                    // Xử lý thanh toán ngay nếu có
                     if (!this.customerForm.id && this.customerForm.hasPayment) {
                         const nowStr = new Date().toISOString().split('T')[0] + ' ' + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
                         if (this.customerForm.paymentType === 'single') {
@@ -1441,7 +1431,7 @@
                     a.href = url;
                     a.download = `ThuChi_${this.selectedMonthFilter}.csv`;
                     a.click();
-                    this.showToast('Xuất file thành công!');
+                    this.showToast('Xuất file Excel thành công!');
                 },
 
                 confirmResetFinanceMonth() {
@@ -1528,6 +1518,7 @@
                     const db = firebase.database();
                     const updates = {};
                     updates[`treatments/${t.id}/paidAmount`] = newPaid;
+                    updates[`treatened/${t.id}/remainingDebt`] = newDebt; // correction key below
                     updates[`treatments/${t.id}/remainingDebt`] = newDebt;
                     updates[`treatments/${t.id}/status`] = newStatus;
 
@@ -1548,7 +1539,6 @@
 
                 resetCheckinForm() {
                     this.checkinForm = { treatmentId: '', sessionNumber: 1, technician: this.technicians[0] ? this.technicians[0].name : '', notes: '' };
-                    this.checkinModalSearch = '';
                 },
 
                 onSelectTreatmentForCheckin() {
