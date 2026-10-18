@@ -103,7 +103,7 @@
             <header class="bg-white border-b border-slate-200 px-6 py-4 hidden md:flex items-center justify-between sticky top-0 z-10">
                 <div class="flex items-center space-x-3">
                     <h2 class="text-xl font-bold text-slate-800" x-text="tabs.find(t => t.id === activeTab)?.name"></h2>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-100">Mộc An Therapy v3.4 (Firebase)</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-100">Mộc An Therapy v3.5</span>
                 </div>
                 <div class="flex items-center space-x-4">
                     <div class="flex items-center space-x-2 bg-slate-100 px-3 py-1.5 rounded-lg text-xs text-slate-600 font-medium">
@@ -118,14 +118,13 @@
 
                 <!-- TAB 1: TỔNG QUAN -->
                 <div x-show="activeTab === 'dashboard'" class="space-y-6" x-cloak>
-                    <!-- Welcome Banner & Thanh tìm kiếm trực tiếp tại Tổng quan -->
+                    <!-- Welcome Banner & Thanh tìm kiếm -->
                     <div class="bg-gradient-to-r from-brand-600 to-brand-500 rounded-2xl p-6 text-white shadow-lg shadow-brand-500/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
                             <h3 class="text-2xl font-bold">Chào mừng trở lại, Mộc An Therapy! ✨</h3>
                             <p class="text-brand-100 text-sm mt-1">Hệ thống chăm sóc sức khoẻ và trị liệu chuyên nghiệp tích hợp Firebase.</p>
                         </div>
                         <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                            <!-- Thanh tìm kiếm nhanh ở Tổng quan -->
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                     <i class="fa-solid fa-search"></i>
@@ -151,10 +150,10 @@
                                     <div class="min-w-0 pr-2">
                                         <h5 class="font-bold text-slate-900 text-sm truncate" x-text="c.name"></h5>
                                         <p class="text-xs text-slate-500"><i class="fa-solid fa-phone mr-1"></i> <span x-text="c.phone"></span></p>
-                                        <p class="text-[10px] mt-1" :class="hasActiveTreatment(c.id) ? 'text-emerald-600 font-semibold' : 'text-slate-400'" x-text="hasActiveTreatment(c.id) ? '● Có liệu trình active' : '○ Khách buổi lẻ'"></p>
+                                        <p class="text-[10px] mt-1" :class="hasActiveTreatment(c.id) ? 'text-emerald-600 font-semibold' : 'text-amber-600 font-semibold'" x-text="hasActiveTreatment(c.id) ? '● Có liệu trình active' : '○ Khách buổi lẻ'"></p>
                                     </div>
                                     <div class="flex items-center space-x-1.5 flex-shrink-0">
-                                        <button x-show="hasActiveTreatment(c.id)" @click="quickCheckinFromDashboard(c)" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition flex items-center space-x-1" title="Check-in ngay">
+                                        <button @click="quickCheckinFromDashboard(c)" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition flex items-center space-x-1" title="Check-in ngay">
                                             <i class="fa-solid fa-clipboard-user"></i>
                                             <span>Check-in</span>
                                         </button>
@@ -180,7 +179,6 @@
                             </div>
                         </div>
 
-                        <!-- LƯỢT KHÁCH HÀNG TRONG THÁNG (ĐỒNG BỘ CHÍNH XÁC VỚI TAB KHÁCH HÀNG TRONG THÁNG) -->
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-brand-300 transition" @click="activeTab = 'monthly_customers'">
                             <div>
                                 <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Lượt Khách Trong Tháng</p>
@@ -260,7 +258,6 @@
                                                 <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-700" x-text="(c.history || 'Trị liệu cột sống / Cơ xương khớp')"></span>
                                             </td>
                                             <td class="p-4 text-center space-x-1">
-                                                <!-- Nút Xem Hồ Sơ & Lịch Sử Trị Liệu -->
                                                 <button @click="viewCustomerDetail(c)" class="p-2 text-brand-600 hover:bg-brand-50 rounded-lg transition" title="Xem hồ sơ trị liệu">
                                                     <i class="fa-solid fa-folder-open"></i>
                                                 </button>
@@ -284,7 +281,7 @@
                     </div>
                 </div>
 
-                <!-- TAB 3: THU - CHI -->
+                <!-- TAB 3: THU - CHI (HIỂN THỊ TỪ NGÀY GẦN NHẤT ĐẾN XA) -->
                 <div x-show="activeTab === 'finance'" class="space-y-6" x-cloak>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
@@ -324,11 +321,15 @@
                     </div>
 
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                            <span class="text-xs font-semibold text-slate-600 uppercase">Danh sách phiếu thu - chi (Từ ngày gần nhất → xa)</span>
+                            <span class="text-xs text-slate-500 font-medium" x-text="'Tổng số phiếu: ' + filteredFinances.length"></span>
+                        </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                        <th class="p-4">Ngày</th>
+                                        <th class="p-4">Ngày (Gần nhất → Xa)</th>
                                         <th class="p-4">Loại</th>
                                         <th class="p-4">Danh Mục</th>
                                         <th class="p-4">Nội Dung / Khách Hàng</th>
@@ -339,7 +340,7 @@
                                 <tbody class="divide-y divide-slate-100 text-sm">
                                     <template x-for="f in filteredFinances" :key="f.id">
                                         <tr class="hover:bg-slate-50/80 transition">
-                                            <td class="p-4 text-slate-600" x-text="f.date"></td>
+                                            <td class="p-4 text-slate-600 font-medium" x-text="f.date"></td>
                                             <td class="p-4">
                                                 <span :class="f.type === 'Thu' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2.5 py-1 rounded-full text-xs font-bold" x-text="f.type"></span>
                                             </td>
@@ -430,12 +431,10 @@
                 <!-- TAB 5: KHÁCH HÀNG TRONG THÁNG -->
                 <div x-show="activeTab === 'monthly_customers'" class="space-y-6" x-cloak>
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                        <!-- Lọc theo tháng -->
                         <div class="flex items-center space-x-3 w-full sm:w-auto">
                             <label class="text-xs font-semibold text-slate-600 uppercase">Chọn tháng:</label>
                             <input type="month" x-model="selectedMonthFilter" class="px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
                         </div>
-                        <!-- Thanh tìm kiếm realtime -->
                         <div class="relative w-full sm:w-80">
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                 <i class="fa-solid fa-search"></i>
@@ -495,23 +494,28 @@
                 <div x-show="activeTab === 'checkin'" class="space-y-6" x-cloak>
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                            <!-- Thanh tìm kiếm khách hàng (Tên hoặc SĐT) -->
                             <div class="relative w-full sm:w-80">
                                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                     <i class="fa-solid fa-search"></i>
                                 </span>
-                                <input type="text" x-model="checkinSearch" placeholder="Tìm kiếm khách hàng (Tên hoặc SĐT)..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                                <input type="text" x-model="checkinSearch" placeholder="Tìm kiếm lượt check-in..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
                             </div>
                         </div>
-                        <button @click="resetCheckinForm(); openCheckinModal = true" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition flex items-center space-x-2 w-full md:w-auto justify-center">
-                            <i class="fa-solid fa-clipboard-user"></i>
-                            <span>Check-in buổi mới</span>
-                        </button>
+                        <div class="flex flex-wrap gap-2 w-full md:w-auto justify-end">
+                            <button @click="resetCheckinForm(); checkinForm.checkinType = 'single'; openCheckinModal = true" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition flex items-center space-x-2">
+                                <i class="fa-solid fa-user-plus"></i>
+                                <span>Check-in Buổi Lẻ</span>
+                            </button>
+                            <button @click="resetCheckinForm(); checkinForm.checkinType = 'package'; openCheckinModal = true" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition flex items-center space-x-2">
+                                <i class="fa-solid fa-clipboard-user"></i>
+                                <span>Check-in Liệu Trình</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                         <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                            <span class="text-xs font-semibold text-slate-600 uppercase">Danh sách liệu trình & Check-in</span>
+                            <span class="text-xs font-semibold text-slate-600 uppercase">Danh sách Check-in (Từ gần nhất đến xa)</span>
                             <span class="text-xs text-slate-500 font-medium" x-text="'Tổng số lượt: ' + filteredCheckins.length"></span>
                         </div>
                         <div class="overflow-x-auto">
@@ -521,7 +525,7 @@
                                         <th class="p-4">Thời Gian</th>
                                         <th class="p-4">Khách Hàng</th>
                                         <th class="p-4">Số Điện Thoại</th>
-                                        <th class="p-4">Liệu Trình</th>
+                                        <th class="p-4">Hình Thức / Dịch Vụ</th>
                                         <th class="p-4">Buổi Thứ</th>
                                         <th class="p-4">Kỹ Thuật Viên</th>
                                         <th class="p-4">Ghi Chú Trị Liệu</th>
@@ -531,12 +535,12 @@
                                 <tbody class="divide-y divide-slate-100 text-sm">
                                     <template x-for="item in filteredCheckins" :key="item.id">
                                         <tr class="hover:bg-slate-50/80 transition">
-                                            <td class="p-4 text-slate-600 text-xs" x-text="item.date"></td>
+                                            <td class="p-4 text-slate-600 text-xs font-semibold" x-text="item.date"></td>
                                             <td class="p-4 font-bold text-slate-900" x-text="item.customerName"></td>
                                             <td class="p-4 text-slate-600 text-xs" x-text="getCustomerPhone(item.customerId)"></td>
-                                            <td class="p-4 font-medium text-brand-600" x-text="item.treatmentName"></td>
+                                            <td class="p-4 font-medium" :class="item.treatmentId === 'single_session' ? 'text-amber-600' : 'text-brand-600'" x-text="item.treatmentName"></td>
                                             <td class="p-4">
-                                                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800" x-text="'Buổi ' + item.sessionNumber"></span>
+                                                <span :class="item.treatmentId === 'single_session' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'" class="px-2.5 py-1 rounded-full text-xs font-bold" x-text="'Buổi ' + item.sessionNumber"></span>
                                             </td>
                                             <td class="p-4 text-slate-700 font-medium" x-text="item.technician"></td>
                                             <td class="p-4 text-slate-600 italic" x-text="item.notes || 'Không có ghi chú'"></td>
@@ -695,14 +699,14 @@
                 </div>
             </div>
 
-            <!-- Lịch sử các buổi trị liệu / check-in -->
+            <!-- Lịch sử các buổi trị liệu / check-in (Tất cả Liệu trình & Buổi lẻ) -->
             <div class="space-y-3">
                 <h4 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-calendar-check text-emerald-600 mr-2"></i> Lịch Sử Check-in & Trị Liệu</h4>
                 <div class="space-y-2 max-h-48 overflow-y-auto">
                     <template x-for="item in checkins.filter(c => c.customerId === selectedCustomerDetail.id)" :key="item.id">
                         <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs flex justify-between items-center">
                             <div>
-                                <span class="font-bold text-brand-600" x-text="item.treatmentName + ' (Buổi ' + item.sessionNumber + ')'"></span>
+                                <span class="font-bold" :class="item.treatmentId === 'single_session' ? 'text-amber-600' : 'text-brand-600'" x-text="item.treatmentName + ' (Buổi ' + item.sessionNumber + ')'"></span>
                                 <p class="text-slate-500 mt-0.5" x-text="'KTV: ' + item.technician + ' • Ghi chú: ' + (item.notes || 'Không có')"></p>
                             </div>
                             <span class="text-slate-400" x-text="item.date"></span>
@@ -995,27 +999,78 @@
         </div>
     </div>
 
-    <!-- MODAL: CHECK-IN BUỔI MỚI & CHỌN KTV -->
-    <div x-show="openCheckinModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" x-cloak>
-        <div @click.away="openCheckinModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+    <!-- MODAL: CHECK-IN BUỔI MỚI (TÍCH HỢP TÌM KIẾM CẢ BUỔI LẺ VÀ LIỆU TRÌNH) -->
+    <div x-show="openCheckinModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 overflow-y-auto" x-cloak>
+        <div @click.away="openCheckinModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 my-8 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-lg text-slate-900">Check-in Buổi Mới & Chọn KTV</h3>
+                <h3 class="font-bold text-lg text-slate-900" x-text="checkinForm.checkinType === 'single' ? 'Check-in Buổi Lẻ Mới' : 'Check-in Liệu Trình'"></h3>
                 <button @click="openCheckinModal = false" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
+            
             <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-brand-700 uppercase mb-1">🔍 Chọn Liệu Trình Khách Hàng</label>
-                    <select x-model="checkinForm.treatmentId" @change="onSelectTreatmentForCheckin" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
-                        <option value="">-- Chọn liệu trình đang thực hiện --</option>
-                        <template x-for="t in treatments.filter(item => item.status === 'Đang thực hiện')" :key="t.id">
-                            <option :value="t.id" x-text="t.customerName + ' (' + t.customerPhone + ') - ' + t.packageName + ' (Còn ' + (t.totalSessions - t.completedSessions) + ' buổi)'"></option>
-                        </template>
-                    </select>
+                <!-- Chọn hình thức Check-in -->
+                <div class="flex p-1 bg-slate-100 rounded-xl space-x-1">
+                    <button @click="checkinForm.checkinType = 'package'; onSelectTreatmentForCheckin()" :class="checkinForm.checkinType === 'package' ? 'bg-white font-bold text-brand-600 shadow-sm' : 'text-slate-600'" class="flex-1 py-2 text-xs rounded-lg transition">Khách Liệu Trình</button>
+                    <button @click="checkinForm.checkinType = 'single'; onSelectSingleCustomerForCheckin()" :class="checkinForm.checkinType === 'single' ? 'bg-white font-bold text-amber-600 shadow-sm' : 'text-slate-600'" class="flex-1 py-2 text-xs rounded-lg transition">Khách Buổi Lẻ</button>
                 </div>
+
+                <!-- Thanh tìm kiếm nhanh khách hàng / liệu trình trong Modal -->
+                <div>
+                    <label class="block text-xs font-semibold text-brand-700 uppercase mb-1">🔍 Tìm kiếm khách hàng (Tên / SĐT)</label>
+                    <div class="relative">
+                        <input type="text" x-model="modalCustomerSearch" placeholder="Gõ tên hoặc số điện thoại..." class="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-search"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Dành cho Khách Liệu Trình -->
+                <template x-if="checkinForm.checkinType === 'package'">
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Chọn Liệu Trình Khách Hàng *</label>
+                            <select x-model="checkinForm.treatmentId" @change="onSelectTreatmentForCheckin" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                                <option value="">-- Chọn liệu trình --</option>
+                                <template x-for="t in filteredTreatmentsForModal" :key="t.id">
+                                    <option :value="t.id" x-text="t.customerName + ' (' + t.customerPhone + ') - ' + t.packageName + ' (Buổi tiếp theo: ' + (t.completedSessions + 1) + ')'"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Dành cho Khách Buổi Lẻ -->
+                <template x-if="checkinForm.checkinType === 'single'">
+                    <div class="space-y-3 p-3.5 bg-amber-50/50 rounded-xl border border-amber-100">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Chọn Khách Hàng Lẻ *</label>
+                            <select x-model="checkinForm.customerId" @change="onSelectSingleCustomerForCheckin" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500 bg-white">
+                                <option value="">-- Chọn khách hàng lẻ --</option>
+                                <template x-for="c in filteredCustomersForModal" :key="c.id">
+                                    <option :value="c.id" x-text="c.name + ' (' + c.phone + ')'"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Giá Tiền Buổi Lẻ (VNĐ)</label>
+                                <input type="number" x-model.number="checkinForm.singlePrice" placeholder="300000" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-sm bg-white">
+                            </div>
+                            <div class="flex items-end">
+                                <label class="flex items-center space-x-2 text-xs font-semibold text-emerald-700 cursor-pointer pb-2">
+                                    <input type="checkbox" x-model="checkinForm.autoCreateRevenue" class="rounded text-emerald-600 focus:ring-emerald-500">
+                                    <span>Tự động tạo Phiếu Thu</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Buổi Thứ</label>
-                        <input type="number" x-model.number="checkinForm.sessionNumber" readonly class="w-full px-3.5 py-2 bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-600">
+                        <input type="number" x-model.number="checkinForm.sessionNumber" readonly class="w-full px-3.5 py-2 bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-600 font-bold">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Kỹ Thuật Viên *</label>
@@ -1074,6 +1129,7 @@
                 monthlySearch: '',
                 dashboardSearch: '',
                 treatmentSearch: '',
+                modalCustomerSearch: '',
 
                 firebaseConfigInput: {
                     apiKey: "AIzaSyDMKlhIDGj0Lrsyghb5EPZbFNShOk79XME",
@@ -1123,7 +1179,17 @@
                 treatmentForm: { customerId: '', packageName: '', totalPrice: '', totalSessions: 10, paidAmount: '' },
                 currentTreatmentPayment: { id: null, customerName: '', packageName: '', remainingDebt: 0 },
                 installmentAmount: '',
-                checkinForm: { treatmentId: '', sessionNumber: 1, technician: '', notes: '' },
+                
+                checkinForm: { 
+                    checkinType: 'package', // 'package' hoặc 'single'
+                    treatmentId: '', 
+                    customerId: '',
+                    sessionNumber: 1, 
+                    technician: '', 
+                    notes: '',
+                    singlePrice: 300000,
+                    autoCreateRevenue: true
+                },
 
                 toast: { show: false, message: '', icon: 'fa-solid fa-check-circle' },
 
@@ -1220,13 +1286,20 @@
                 quickCheckinFromDashboard(c) {
                     const activeT = this.treatments.find(t => t.customerId === c.id && t.status === 'Đang thực hiện');
                     if (activeT) {
+                        this.checkinForm.checkinType = 'package';
                         this.checkinForm.treatmentId = activeT.id;
                         this.checkinForm.sessionNumber = activeT.completedSessions + 1;
                         this.checkinForm.technician = this.technicians.length > 0 ? this.technicians[0].name : '';
                         this.checkinForm.notes = '';
-                        this.activeTab = 'checkin';
-                        this.openCheckinModal = true;
+                    } else {
+                        this.checkinForm.checkinType = 'single';
+                        this.checkinForm.customerId = c.id;
+                        this.onSelectSingleCustomerForCheckin();
+                        this.checkinForm.technician = this.technicians.length > 0 ? this.technicians[0].name : '';
+                        this.checkinForm.notes = '';
                     }
+                    this.activeTab = 'checkin';
+                    this.openCheckinModal = true;
                 },
 
                 get stats() {
@@ -1253,9 +1326,12 @@
                     return this.customers.filter(c => (c.name && c.name.toLowerCase().includes(q)) || (c.phone && c.phone.includes(q)));
                 },
 
+                /* DỮ LIỆU THU CHI TỰ ĐỘNG SẮP XẾP TỪ NGÀY GẦN NHẤT ĐẾN XA */
                 get filteredFinances() {
-                    if (this.financeFilter === 'all') return this.finances;
-                    return this.finances.filter(f => f.type === this.financeFilter);
+                    let list = [...this.finances];
+                    list.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    if (this.financeFilter === 'all') return list;
+                    return list.filter(f => f.type === this.financeFilter);
                 },
 
                 get filteredTreatments() {
@@ -1266,7 +1342,6 @@
 
                 get filteredMonthlyCustomers() {
                     const q = this.monthlySearch.toLowerCase();
-                    // Sắp xếp từ ngày gần nhất đến xa
                     const sorted = [...this.checkins].sort((a, b) => new Date(b.date) - new Date(a.date));
                     return sorted.filter(item => {
                         const matchMonth = item.date && item.date.startsWith(this.selectedMonthFilter);
@@ -1284,6 +1359,20 @@
                         const matchSearch = !q || (item.customerName && item.customerName.toLowerCase().includes(q)) || phone.includes(q);
                         return matchSearch;
                     });
+                },
+
+                /* BỘ LỌC TÌM KIẾM TRONG MODAL CHECK-IN */
+                get filteredTreatmentsForModal() {
+                    const q = this.modalCustomerSearch.toLowerCase().trim();
+                    const activeT = this.treatments.filter(item => item.status === 'Đang thực hiện');
+                    if (!q) return activeT;
+                    return activeT.filter(t => (t.customerName && t.customerName.toLowerCase().includes(q)) || (t.customerPhone && t.customerPhone.includes(q)) || (t.packageName && t.packageName.toLowerCase().includes(q)));
+                },
+
+                get filteredCustomersForModal() {
+                    const q = this.modalCustomerSearch.toLowerCase().trim();
+                    if (!q) return this.customers;
+                    return this.customers.filter(c => (c.name && c.name.toLowerCase().includes(q)) || (c.phone && c.phone.includes(q)));
                 },
 
                 resetCustomerForm() {
@@ -1518,7 +1607,6 @@
                     const db = firebase.database();
                     const updates = {};
                     updates[`treatments/${t.id}/paidAmount`] = newPaid;
-                    updates[`treatened/${t.id}/remainingDebt`] = newDebt; // correction key below
                     updates[`treatments/${t.id}/remainingDebt`] = newDebt;
                     updates[`treatments/${t.id}/status`] = newStatus;
 
@@ -1538,7 +1626,17 @@
                 },
 
                 resetCheckinForm() {
-                    this.checkinForm = { treatmentId: '', sessionNumber: 1, technician: this.technicians[0] ? this.technicians[0].name : '', notes: '' };
+                    this.modalCustomerSearch = '';
+                    this.checkinForm = { 
+                        checkinType: 'package',
+                        treatmentId: '', 
+                        customerId: '',
+                        sessionNumber: 1, 
+                        technician: this.technicians[0] ? this.technicians[0].name : '', 
+                        notes: '',
+                        singlePrice: 300000,
+                        autoCreateRevenue: true
+                    };
                 },
 
                 onSelectTreatmentForCheckin() {
@@ -1548,38 +1646,86 @@
                     }
                 },
 
-                saveCheckin() {
-                    if (!this.checkinForm.treatmentId || !this.checkinForm.technician) {
-                        this.showToast('Vui lòng chọn liệu trình và KTV phụ trách!', 'fa-solid fa-triangle-exclamation');
+                /* TỰ ĐỘNG TÍNH SỐ BUỔI LẺ ĐÃ ĐẾN DÀNH CHO KHÁCH BUỔI LẺ */
+                onSelectSingleCustomerForCheckin() {
+                    if (!this.checkinForm.customerId) {
+                        this.checkinForm.sessionNumber = 1;
                         return;
                     }
-                    const t = this.treatments.find(item => item.id === this.checkinForm.treatmentId);
-                    if (!t) return;
+                    const singleVisits = this.checkins.filter(c => c.customerId === this.checkinForm.customerId && c.treatmentId === 'single_session');
+                    this.checkinForm.sessionNumber = singleVisits.length + 1;
+                },
 
-                    const nowStr = new Date().toISOString().split('T')[0] + ' ' + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+                saveCheckin() {
+                    if (!this.checkinForm.technician) {
+                        this.showToast('Vui lòng chọn KTV phụ trách!', 'fa-solid fa-triangle-exclamation');
+                        return;
+                    }
+
                     const db = firebase.database();
+                    const nowStr = new Date().toISOString().split('T')[0] + ' ' + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
                     const updates = {};
 
-                    const checkinId = db.ref('checkins').push().key;
-                    updates[`checkins/${checkinId}`] = {
-                        customerId: t.customerId,
-                        customerName: t.customerName,
-                        treatmentId: t.id,
-                        treatmentName: t.packageName,
-                        sessionNumber: this.checkinForm.sessionNumber,
-                        technician: this.checkinForm.technician,
-                        notes: this.checkinForm.notes || '',
-                        date: nowStr
-                    };
+                    if (this.checkinForm.checkinType === 'package') {
+                        if (!this.checkinForm.treatmentId) {
+                            this.showToast('Vui lòng chọn liệu trình!', 'fa-solid fa-triangle-exclamation');
+                            return;
+                        }
+                        const t = this.treatments.find(item => item.id === this.checkinForm.treatmentId);
+                        if (!t) return;
 
-                    const newCompleted = t.completedSessions + 1;
-                    updates[`treatments/${t.id}/completedSessions`] = newCompleted;
-                    if (newCompleted >= t.totalSessions) {
-                        updates[`treatments/${t.id}/status`] = 'Hoàn thành';
+                        const checkinId = db.ref('checkins').push().key;
+                        updates[`checkins/${checkinId}`] = {
+                            customerId: t.customerId,
+                            customerName: t.customerName,
+                            treatmentId: t.id,
+                            treatmentName: t.packageName,
+                            sessionNumber: this.checkinForm.sessionNumber,
+                            technician: this.checkinForm.technician,
+                            notes: this.checkinForm.notes || '',
+                            date: nowStr
+                        };
+
+                        const newCompleted = t.completedSessions + 1;
+                        updates[`treatments/${t.id}/completedSessions`] = newCompleted;
+                        if (newCompleted >= t.totalSessions) {
+                            updates[`treatments/${t.id}/status`] = 'Hoàn thành';
+                        }
+                    } else {
+                        // Check-in Buổi lẻ
+                        if (!this.checkinForm.customerId) {
+                            this.showToast('Vui lòng chọn khách hàng lẻ!', 'fa-solid fa-triangle-exclamation');
+                            return;
+                        }
+                        const cust = this.customers.find(c => c.id === this.checkinForm.customerId);
+                        if (!cust) return;
+
+                        const checkinId = db.ref('checkins').push().key;
+                        updates[`checkins/${checkinId}`] = {
+                            customerId: cust.id,
+                            customerName: cust.name,
+                            treatmentId: 'single_session',
+                            treatmentName: 'Buổi lẻ trị liệu',
+                            sessionNumber: this.checkinForm.sessionNumber,
+                            technician: this.checkinForm.technician,
+                            notes: this.checkinForm.notes || '',
+                            date: nowStr
+                        };
+
+                        if (this.checkinForm.autoCreateRevenue && this.checkinForm.singlePrice > 0) {
+                            const finId = db.ref('finances').push().key;
+                            updates[`finances/${finId}`] = {
+                                type: 'Thu',
+                                category: 'Doanh thu trị liệu cột sống & xương khớp',
+                                amount: Number(this.checkinForm.singlePrice) || 300000,
+                                date: new Date().toISOString().split('T')[0],
+                                note: `Thu tiền buổi lẻ (${this.checkinForm.sessionNumber}) - ${cust.name}`
+                            };
+                        }
                     }
 
                     db.ref().update(updates).then(() => {
-                        this.showToast('Check-in buổi trị liệu thành công!');
+                        this.showToast('Check-in thành công!');
                         this.openCheckinModal = false;
                     });
                 },
