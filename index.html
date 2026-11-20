@@ -257,6 +257,7 @@
                                             <td class="p-4 text-slate-600" x-text="c.address || 'Chưa cập nhật'"></td>
                                             <td class="p-4">
                                                 <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-brand-50 text-brand-700" x-text="(c.history || 'Trị liệu cột sống / Cơ xương khớp')"></span>
+                                                <span class="ml-2 px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800" x-text="'Lẻ: ' + singleVisitCount(c.id) + ' lượt'"></span>
                                             </td>
                                             <td class="p-4 text-center space-x-1">
                                                 <button @click="viewCustomerDetail(c)" class="p-2 text-brand-600 hover:bg-brand-50 rounded-lg transition" title="Xem hồ sơ trị liệu">
@@ -680,6 +681,13 @@
                 </div>
             </div>
 
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100"><p class="text-[11px] uppercase font-semibold text-slate-400">Tổng lượt</p><p class="text-xl font-bold text-slate-900" x-text="singleVisitCount(selectedCustomerDetail.id) + packageVisitCount(selectedCustomerDetail.id)"></p></div>
+                <div class="p-3 rounded-xl bg-amber-50 border border-amber-100"><p class="text-[11px] uppercase font-semibold text-amber-700">Buổi lẻ</p><p class="text-xl font-bold text-amber-700" x-text="singleVisitCount(selectedCustomerDetail.id)"></p></div>
+                <div class="p-3 rounded-xl bg-brand-50 border border-brand-100"><p class="text-[11px] uppercase font-semibold text-brand-700">Liệu trình</p><p class="text-xl font-bold text-brand-700" x-text="packageVisitCount(selectedCustomerDetail.id)"></p></div>
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100"><p class="text-[11px] uppercase font-semibold text-slate-400">Lần gần nhất</p><p class="text-sm font-bold text-slate-900 mt-1.5" x-text="lastVisit(selectedCustomerDetail.id)"></p></div>
+            </div>
+
             <!-- Các gói liệu trình của khách hàng -->
             <div class="space-y-3">
                 <h4 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-clipboard-list text-brand-600 mr-2"></i> Thông Tin Liệu Trình & Công Nợ</h4>
@@ -705,8 +713,13 @@
             <!-- Lịch sử các buổi trị liệu / check-in (Tất cả Liệu trình & Buổi lẻ) -->
             <div class="space-y-3">
                 <h4 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-calendar-check text-emerald-600 mr-2"></i> Lịch Sử Check-in & Trị Liệu</h4>
+                <div class="flex gap-2 text-xs font-semibold">
+                    <button type="button" @click="detailFilter = 'all'" :class="detailFilter === 'all' ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-3 py-1 rounded-full">Tất cả</button>
+                    <button type="button" @click="detailFilter = 'single'" :class="detailFilter === 'single' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-3 py-1 rounded-full">Buổi lẻ</button>
+                    <button type="button" @click="detailFilter = 'package'" :class="detailFilter === 'package' ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-3 py-1 rounded-full">Liệu trình</button>
+                </div>
                 <div class="space-y-2 max-h-48 overflow-y-auto">
-                    <template x-for="item in checkins.filter(c => c.customerId === selectedCustomerDetail.id)" :key="item.id">
+                    <template x-for="item in detailCheckins" :key="item.id">
                         <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs flex justify-between items-center">
                             <div>
                                 <span class="font-bold" :class="item.treatmentId === 'single_session' ? 'text-amber-600' : 'text-brand-600'" x-text="item.treatmentName + ' (Buổi ' + item.sessionNumber + ')'"></span>
@@ -715,7 +728,7 @@
                             <span class="text-slate-400" x-text="fmtDT(item.date)"></span>
                         </div>
                     </template>
-                    <div x-show="checkins.filter(c => c.customerId === selectedCustomerDetail.id).length === 0" class="text-center py-3 text-slate-400 text-xs italic">
+                    <div x-show="detailCheckins.length === 0" class="text-center py-3 text-slate-400 text-xs italic">
                         Chưa có lịch sử trị liệu nào.
                     </div>
                 </div>
@@ -1155,6 +1168,7 @@
                 confirmResetFinanceModal: false,
 
                 selectedCustomerDetail: {},
+                detailFilter: 'all',
 
                 confirmModal: {
                     show: false,
@@ -1285,6 +1299,14 @@
                     this.openInstallmentModal = this.openCheckinModal = this.openTechnicianModal = this.confirmResetFinanceModal = false;
                     this.confirmModal.show = false; this.mobileMenuOpen = false;
                 },
+                singleVisitCount(id) { return this.checkins.filter(c => c.customerId === id && c.treatmentId === 'single_session').length; },
+                packageVisitCount(id) { return this.checkins.filter(c => c.customerId === id && c.treatmentId !== 'single_session').length; },
+                lastVisit(id) { const l = this.checkins.filter(c => c.customerId === id).map(c => c.date || '').sort().pop(); return l ? this.fmtD(l) : '—'; },
+                get detailCheckins() {
+                    const id = this.selectedCustomerDetail.id;
+                    return this.checkins.filter(c => c.customerId === id && (this.detailFilter === 'all' || (this.detailFilter === 'single') === (c.treatmentId === 'single_session')))
+                        .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+                },
                 getCustomerPhone(customerId) {
                     const c = this.customers.find(item => item.id === customerId);
                     return c ? c.phone : 'Chưa có SĐT';
@@ -1295,7 +1317,7 @@
                 },
 
                 viewCustomerDetail(c) {
-                    this.selectedCustomerDetail = c;
+                    this.selectedCustomerDetail = c; this.detailFilter = 'all';
                     this.openCustomerDetailModal = true;
                 },
 
