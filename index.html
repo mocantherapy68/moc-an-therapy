@@ -29,7 +29,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
     
     <!-- Firebase SDK v10 (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -38,16 +38,17 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         [x-cloak] { display: none !important; }
+        @media (max-width: 767px) { input, select, textarea { font-size: 16px !important; } }
     </style>
 </head>
-<body class="h-full text-slate-800 antialiased" x-data="spaApp()" x-init="initData()">
+<body class="h-full text-slate-800 antialiased" x-data="spaApp()" x-init="initData()" @keydown.escape.window="closeAllModals()">
 
     <div class="min-h-full flex flex-col md:flex-row">
         
         <!-- Mobile Header -->
         <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between md:hidden sticky top-0 z-30">
             <div class="flex items-center space-x-3">
-                <img src="1789457415848 (1).png" alt="Mộc An Therapy Logo" class="w-10 h-10 rounded-full object-cover shadow-md border border-brand-100" onerror="this.src='https://placehold.co/100x100/1e3a8a/ffffff?text=MA'">
+                <img src="1789457415848 (1).png" alt="Mộc An Therapy Logo" class="w-10 h-10 rounded-full object-cover shadow-md border border-brand-100" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%231e3a8a%22/><text x=%2250%22 y=%2262%22 font-size=%2236%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22sans-serif%22>MA</text></svg>'">
                 <div>
                     <h1 class="font-bold text-slate-900 leading-tight">MỘC AN THERAPY</h1>
                     <p class="text-xs text-slate-500">Khoẻ hơn - Linh hoạt hơn</p>
@@ -58,12 +59,13 @@
             </button>
         </header>
 
+        <div x-show="mobileMenuOpen" @click="mobileMenuOpen=false" class="fixed inset-0 bg-slate-900/40 z-10 md:hidden" x-cloak></div>
         <!-- Sidebar Navigation -->
-        <aside :class="mobileMenuOpen ? 'block' : 'hidden'" class="md:block w-full md:w-64 bg-white border-r border-slate-200 flex-shrink-0 z-20 fixed md:static inset-y-0 left-0 transition-all duration-200 shadow-xl md:shadow-none">
+        <aside :class="mobileMenuOpen ? 'block' : 'hidden'" class="md:block w-72 max-w-[85vw] md:w-64 bg-white border-r border-slate-200 flex-shrink-0 z-20 fixed md:static inset-y-0 left-0 transition-all duration-200 shadow-xl md:shadow-none">
             <div class="h-full flex flex-col">
                 <!-- Brand Header (Desktop) -->
                 <div class="p-5 border-b border-slate-100 hidden md:flex items-center space-x-3">
-                    <img src="1789457415848 (1).png" alt="Mộc An Therapy Logo" class="w-11 h-11 rounded-full object-cover shadow-md border border-brand-100 flex-shrink-0" onerror="this.src='https://placehold.co/100x100/1e3a8a/ffffff?text=MA'">
+                    <img src="1789457415848 (1).png" alt="Mộc An Therapy Logo" class="w-11 h-11 rounded-full object-cover shadow-md border border-brand-100 flex-shrink-0" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%231e3a8a%22/><text x=%2250%22 y=%2262%22 font-size=%2236%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22sans-serif%22>MA</text></svg>'">
                     <div class="min-w-0">
                         <h1 class="font-bold text-slate-900 tracking-wide text-sm truncate">MỘC AN THERAPY</h1>
                         <p class="text-[11px] text-brand-600 font-medium truncate">Khoẻ • Linh hoạt • Sống tốt hơn</p>
@@ -103,7 +105,7 @@
             <header class="bg-white border-b border-slate-200 px-6 py-4 hidden md:flex items-center justify-between sticky top-0 z-10">
                 <div class="flex items-center space-x-3">
                     <h2 class="text-xl font-bold text-slate-800" x-text="tabs.find(t => t.id === activeTab)?.name"></h2>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-100">Mộc An Therapy v3.5</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-100">Mộc An Therapy v3.6</span>
                 </div>
                 <div class="flex items-center space-x-4">
                     <div class="flex items-center space-x-2 bg-slate-100 px-3 py-1.5 rounded-lg text-xs text-slate-600 font-medium">
@@ -145,7 +147,7 @@
                             <button @click="dashboardSearch = ''" class="text-xs text-slate-400 hover:text-slate-600">Xóa tìm kiếm</button>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                            <template x-for="c in customers.filter(item => item.name.toLowerCase().includes(dashboardSearch.toLowerCase()) || item.phone.includes(dashboardSearch))" :key="c.id">
+                            <template x-for="c in customers.filter(item => (item.name || '').toLowerCase().includes(dashboardSearch.toLowerCase()) || (item.phone || '').includes(dashboardSearch))" :key="c.id">
                                 <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
                                     <div class="min-w-0 pr-2">
                                         <h5 class="font-bold text-slate-900 text-sm truncate" x-text="c.name"></h5>
@@ -245,12 +247,11 @@
                                 <tbody class="divide-y divide-slate-100 text-sm">
                                     <template x-for="c in filteredCustomers" :key="c.id">
                                         <tr class="hover:bg-slate-50/80 transition">
-                                            <td class="p-4 font-semibold text-slate-900 flex items-center space-x-3">
+                                            <td class="p-4 font-semibold text-slate-900"><div class="flex items-center space-x-3">
                                                 <div class="w-9 h-9 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-xs uppercase">
                                                     <span x-text="c.name ? c.name.charAt(0) : 'U'"></span>
                                                 </div>
-                                                <span x-text="c.name"></span>
-                                            </td>
+                                                <span x-text="c.name"></span></div></td>
                                             <td class="p-4 text-slate-600" x-text="c.phone"></td>
                                             <td class="p-4 text-slate-600" x-text="c.dob || 'Chưa cập nhật'"></td>
                                             <td class="p-4 text-slate-600" x-text="c.address || 'Chưa cập nhật'"></td>
@@ -286,15 +287,15 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                             <p class="text-xs font-semibold text-slate-400 uppercase">Tổng Thu</p>
-                            <h3 class="text-2xl font-bold text-emerald-600 mt-1" x-text="formatCurrency(stats.totalRevenue)"></h3>
+                            <h3 class="text-2xl font-bold text-emerald-600 mt-1" x-text="formatCurrency(financeTotals.rev)"></h3>
                         </div>
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                             <p class="text-xs font-semibold text-slate-400 uppercase">Tổng Chi</p>
-                            <h3 class="text-2xl font-bold text-red-600 mt-1" x-text="formatCurrency(stats.totalExpense)"></h3>
+                            <h3 class="text-2xl font-bold text-red-600 mt-1" x-text="formatCurrency(financeTotals.exp)"></h3>
                         </div>
                         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                             <p class="text-xs font-semibold text-slate-400 uppercase">Lợi Nhuận</p>
-                            <h3 class="text-2xl font-bold text-brand-600 mt-1" x-text="formatCurrency(stats.totalProfit)"></h3>
+                            <h3 class="text-2xl font-bold text-brand-600 mt-1" x-text="formatCurrency(financeTotals.profit)"></h3>
                         </div>
                     </div>
 
@@ -305,6 +306,7 @@
                             <button @click="financeFilter = 'Chi'" :class="financeFilter === 'Chi' ? 'bg-red-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-4 py-2 rounded-xl text-sm font-semibold transition">Phiếu Chi</button>
                         </div>
                         <div class="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
+                            <div class="flex items-center gap-2"><input type="month" x-model="financeMonth" aria-label="Chọn tháng" class="px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-brand-500"><button type="button" @click="financeMonth = ''" class="text-xs text-slate-500 underline">Tất cả</button></div>
                             <button @click="exportFinanceExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition flex items-center space-x-2">
                                 <i class="fa-solid fa-file-excel"></i>
                                 <span>Xuất File Excel</span>
@@ -340,7 +342,7 @@
                                 <tbody class="divide-y divide-slate-100 text-sm">
                                     <template x-for="f in filteredFinances" :key="f.id">
                                         <tr class="hover:bg-slate-50/80 transition">
-                                            <td class="p-4 text-slate-600 font-medium" x-text="f.date"></td>
+                                            <td class="p-4 text-slate-600 font-medium" x-text="fmtD(f.date)"></td>
                                             <td class="p-4">
                                                 <span :class="f.type === 'Thu' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'" class="px-2.5 py-1 rounded-full text-xs font-bold" x-text="f.type"></span>
                                             </td>
@@ -389,6 +391,7 @@
                                         <span :class="t.status === 'Hoàn thành' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'" class="px-2.5 py-1 rounded-full text-xs font-bold" x-text="t.status"></span>
                                     </div>
                                     <h4 class="font-bold text-slate-900 text-lg mt-3" x-text="t.customerName"></h4>
+                                    <div class="mt-2 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-brand-500 rounded-full" :style="`width:${Math.min(100, (t.completedSessions || 0) / (t.totalSessions || 1) * 100)}%`"></div></div>
                                     <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-phone mr-1"></i> <span x-text="t.customerPhone"></span></p>
                                     
                                     <div class="mt-4 pt-4 border-t border-slate-100 space-y-2 text-sm">
@@ -464,7 +467,7 @@
                                 <tbody class="divide-y divide-slate-100 text-sm">
                                     <template x-for="item in filteredMonthlyCustomers" :key="item.id">
                                         <tr class="hover:bg-slate-50/80 transition">
-                                            <td class="p-4 text-slate-600 text-xs font-semibold" x-text="item.date"></td>
+                                            <td class="p-4 text-slate-600 text-xs font-semibold" x-text="fmtDT(item.date)"></td>
                                             <td class="p-4 font-bold text-slate-900" x-text="item.customerName"></td>
                                             <td class="p-4 text-slate-600" x-text="getCustomerPhone(item.customerId)"></td>
                                             <td class="p-4">
@@ -535,7 +538,7 @@
                                 <tbody class="divide-y divide-slate-100 text-sm">
                                     <template x-for="item in filteredCheckins" :key="item.id">
                                         <tr class="hover:bg-slate-50/80 transition">
-                                            <td class="p-4 text-slate-600 text-xs font-semibold" x-text="item.date"></td>
+                                            <td class="p-4 text-slate-600 text-xs font-semibold" x-text="fmtDT(item.date)"></td>
                                             <td class="p-4 font-bold text-slate-900" x-text="item.customerName"></td>
                                             <td class="p-4 text-slate-600 text-xs" x-text="getCustomerPhone(item.customerId)"></td>
                                             <td class="p-4 font-medium" :class="item.treatmentId === 'single_session' ? 'text-amber-600' : 'text-brand-600'" x-text="item.treatmentName"></td>
@@ -709,7 +712,7 @@
                                 <span class="font-bold" :class="item.treatmentId === 'single_session' ? 'text-amber-600' : 'text-brand-600'" x-text="item.treatmentName + ' (Buổi ' + item.sessionNumber + ')'"></span>
                                 <p class="text-slate-500 mt-0.5" x-text="'KTV: ' + item.technician + ' • Ghi chú: ' + (item.notes || 'Không có')"></p>
                             </div>
-                            <span class="text-slate-400" x-text="item.date"></span>
+                            <span class="text-slate-400" x-text="fmtDT(item.date)"></span>
                         </div>
                     </template>
                     <div x-show="checkins.filter(c => c.customerId === selectedCustomerDetail.id).length === 0" class="text-center py-3 text-slate-400 text-xs italic">
@@ -732,7 +735,7 @@
             </div>
             <div>
                 <h3 class="font-bold text-lg text-slate-900">Xác Nhận Xóa</h3>
-                <p class="text-sm text-slate-500 mt-1">Bạn có chắc chắn muốn xóa <span class="font-semibold text-slate-700" x-text="confirmModal.itemName"></span> không? Thao tác này không thể hoàn tác.</p>
+                <p class="text-sm text-slate-500 mt-1">Bạn có chắc chắn muốn xóa <span class="font-semibold text-slate-700" x-text="confirmModal.itemName"></span> không? Thao tác này không thể hoàn tác<span x-show="['customer','treatment'].includes(confirmModal.type)"> và sẽ xóa cả lịch sử check-in liên quan</span>.</p>
             </div>
             <div class="flex space-x-3 pt-2">
                 <button @click="confirmModal.show = false" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl text-sm font-semibold transition">Hủy</button>
@@ -749,7 +752,7 @@
             </div>
             <div>
                 <h3 class="font-bold text-lg text-slate-900">Reset Thu Chi Hàng Tháng</h3>
-                <p class="text-sm text-slate-500 mt-1">Hành động này sẽ xóa sạch toàn bộ phiếu Thu - Chi hiện tại để bắt đầu tháng mới. Bạn có chắc chắn muốn tiếp tục?</p>
+                <p class="text-sm text-slate-500 mt-1" x-text="resetFinanceText"></p>
             </div>
             <div class="flex space-x-3 pt-2">
                 <button @click="confirmResetFinanceModal = false" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl text-sm font-semibold transition">Hủy</button>
@@ -1100,6 +1103,10 @@
     </div>
 
     <script>
+        const pad2 = n => String(n).padStart(2, '0');
+        function localToday() { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+        function localMonth() { return localToday().substring(0, 7); }
+        function localNow() { const d = new Date(); return localToday() + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()); }
         function spaApp() {
             return {
                 activeTab: 'dashboard',
@@ -1124,7 +1131,7 @@
                 treatments: [],
                 checkins: [],
 
-                selectedMonthFilter: new Date().toISOString().substring(0, 7),
+                selectedMonthFilter: localMonth(),
                 checkinSearch: '',
                 monthlySearch: '',
                 dashboardSearch: '',
@@ -1158,6 +1165,7 @@
 
                 customerSearch: '',
                 financeFilter: 'all',
+                financeMonth: localMonth(),
                 customerForm: { 
                     id: null, 
                     name: '', 
@@ -1175,7 +1183,7 @@
                     packagePaid: 2000000
                 },
                 technicianForm: { id: null, name: '', phone: '' },
-                financeForm: { type: 'Thu', category: 'Doanh thu trị liệu cột sống & xương khớp', amount: '', date: new Date().toISOString().split('T')[0], note: '' },
+                financeForm: { type: 'Thu', category: 'Doanh thu trị liệu cột sống & xương khớp', amount: '', date: localToday(), note: '' },
                 treatmentForm: { customerId: '', packageName: '', totalPrice: '', totalSessions: 10, paidAmount: '' },
                 currentTreatmentPayment: { id: null, customerName: '', packageName: '', remainingDebt: 0 },
                 installmentAmount: '',
@@ -1208,7 +1216,7 @@
                         if (!firebase.apps.length) {
                             firebase.initializeApp(this.firebaseConfigInput);
                         }
-                        this.isFirebaseConnected = true;
+                        firebase.database().ref('.info/connected').on('value', s => { this.isFirebaseConnected = s.val() === true; });
                         this.listenFirebaseData();
                     } catch (e) {
                         console.error('Lỗi khởi tạo Firebase:', e);
@@ -1252,16 +1260,15 @@
                 },
 
                 saveFirebaseConfig() {
-                    localStorage.setItem('moc_an_firebase_config', JSON.stringify(this.firebaseConfigInput));
-                    this.initFirebase();
-                    this.showToast('Đã lưu và kết nối Firebase thành công!', 'fa-solid fa-fire');
+                    
+                    this.showToast('Đã lưu cấu hình, đang kết nối lại...', 'fa-solid fa-fire'); setTimeout(() => location.reload(), 600);
                 },
 
                 showToast(message, icon = 'fa-solid fa-check-circle') {
                     this.toast.message = message;
                     this.toast.icon = icon;
                     this.toast.show = true;
-                    setTimeout(() => { this.toast.show = false; }, 3000);
+                    clearTimeout(this._t); this._t = setTimeout(() => { this.toast.show = false; }, 3000);
                 },
 
                 formatCurrency(val) {
@@ -1269,6 +1276,15 @@
                     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
                 },
 
+                _t: null,
+                fmtD(d) { if (!d) return ''; const [y, m, dd] = String(d).substring(0, 10).split('-'); return dd + '/' + m + '/' + y; },
+                fmtDT(d) { if (!d) return ''; const t = String(d).substring(11, 16); return (t ? t + ' ' : '') + this.fmtD(d); },
+                csvCell(v) { let x = String(v ?? ''); if (/^[=+@-]/.test(x) && isNaN(Number(x))) x = "'" + x; return '"' + x.replace(/"/g, '""') + '"'; },
+                closeAllModals() {
+                    this.openCustomerModal = this.openCustomerDetailModal = this.openFinanceModal = this.openTreatmentModal = false;
+                    this.openInstallmentModal = this.openCheckinModal = this.openTechnicianModal = this.confirmResetFinanceModal = false;
+                    this.confirmModal.show = false; this.mobileMenuOpen = false;
+                },
                 getCustomerPhone(customerId) {
                     const c = this.customers.find(item => item.id === customerId);
                     return c ? c.phone : 'Chưa có SĐT';
@@ -1306,10 +1322,10 @@
                     const totalRev = this.finances.filter(f => f.type === 'Thu').reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
                     const totalExp = this.finances.filter(f => f.type === 'Chi').reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
                     
-                    const currentMonthStr = new Date().toISOString().substring(0, 7);
+                    const currentMonthStr = localMonth();
                     const currentMonthRev = this.finances.filter(f => f.type === 'Thu' && f.date && f.date.startsWith(currentMonthStr)).reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
                     
-                    const monthlyVisits = this.checkins.filter(item => item.date && item.date.startsWith(this.selectedMonthFilter)).length;
+                    const monthlyVisits = this.checkins.filter(item => item.date && item.date.startsWith(localMonth())).length;
 
                     return {
                         totalRevenue: totalRev,
@@ -1328,12 +1344,21 @@
 
                 /* DỮ LIỆU THU CHI TỰ ĐỘNG SẮP XẾP TỪ NGÀY GẦN NHẤT ĐẾN XA */
                 get filteredFinances() {
-                    let list = [...this.finances];
-                    list.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    let list = [...this.monthFinances];
+                    list.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
                     if (this.financeFilter === 'all') return list;
                     return list.filter(f => f.type === this.financeFilter);
                 },
 
+                get monthFinances() { return this.financeMonth ? this.finances.filter(f => f.date && f.date.startsWith(this.financeMonth)) : this.finances; },
+                get financeTotals() {
+                    const sum = t => this.monthFinances.filter(f => f.type === t).reduce((a, f) => a + (Number(f.amount) || 0), 0);
+                    const rev = sum('Thu'), exp = sum('Chi'); return { rev, exp, profit: rev - exp };
+                },
+                get resetFinanceText() {
+                    const n = this.monthFinances.length;
+                    return this.financeMonth ? `Sẽ xóa ${n} phiếu thu - chi của tháng ${this.financeMonth.split('-').reverse().join('/')}. Các tháng khác không bị ảnh hưởng. Nên xuất Excel trước khi xóa.` : `Sẽ xóa TOÀN BỘ ${n} phiếu thu - chi của mọi tháng. Nên xuất Excel trước khi xóa.`;
+                },
                 get filteredTreatments() {
                     if (!this.treatmentSearch.trim()) return this.treatments;
                     const q = this.treatmentSearch.toLowerCase();
@@ -1342,7 +1367,7 @@
 
                 get filteredMonthlyCustomers() {
                     const q = this.monthlySearch.toLowerCase();
-                    const sorted = [...this.checkins].sort((a, b) => new Date(b.date) - new Date(a.date));
+                    const sorted = [...this.checkins].sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
                     return sorted.filter(item => {
                         const matchMonth = item.date && item.date.startsWith(this.selectedMonthFilter);
                         const phone = this.getCustomerPhone(item.customerId).toLowerCase();
@@ -1353,7 +1378,7 @@
 
                 get filteredCheckins() {
                     const q = this.checkinSearch.toLowerCase();
-                    const sorted = [...this.checkins].sort((a, b) => new Date(b.date) - new Date(a.date));
+                    const sorted = [...this.checkins].sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
                     return sorted.filter(item => {
                         const phone = this.getCustomerPhone(item.customerId).toLowerCase();
                         const matchSearch = !q || (item.customerName && item.customerName.toLowerCase().includes(q)) || phone.includes(q);
@@ -1395,10 +1420,14 @@
                         return;
                     }
                     const db = firebase.database();
+                    const ph = String(this.customerForm.phone).replace(/\s+/g, '');
+                    if (this.customers.some(c => c.id !== this.customerForm.id && String(c.phone || '').replace(/\s+/g, '') === ph)) {
+                        this.showToast('Số điện thoại này đã tồn tại!', 'fa-solid fa-triangle-exclamation'); return;
+                    }
                     const custId = this.customerForm.id || db.ref('customers').push().key;
                     const custData = {
                         name: this.customerForm.name,
-                        phone: this.customerForm.phone,
+                        phone: ph,
                         dob: this.customerForm.dob || '',
                         address: this.customerForm.address || '',
                         history: this.customerForm.history || 'Trị liệu cột sống / Cơ xương khớp'
@@ -1406,9 +1435,13 @@
 
                     const updates = {};
                     updates[`customers/${custId}`] = custData;
+                    if (this.customerForm.id) {
+                        this.treatments.filter(t => t.customerId === custId).forEach(t => { updates[`treatments/${t.id}/customerName`] = custData.name; updates[`treatments/${t.id}/customerPhone`] = custData.phone; });
+                        this.checkins.filter(c => c.customerId === custId).forEach(c => { updates[`checkins/${c.id}/customerName`] = custData.name; });
+                    }
 
                     if (!this.customerForm.id && this.customerForm.hasPayment) {
-                        const nowStr = new Date().toISOString().split('T')[0] + ' ' + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+                        const nowStr = localNow();
                         if (this.customerForm.paymentType === 'single') {
                             const amt = Number(this.customerForm.singleAmount) || 300000;
                             const checkinId = db.ref('checkins').push().key;
@@ -1427,14 +1460,14 @@
                                 type: 'Thu',
                                 category: 'Doanh thu trị liệu cột sống & xương khớp',
                                 amount: amt,
-                                date: new Date().toISOString().split('T')[0],
+                                date: localToday(),
                                 note: `Thu tiền buổi lẻ - ${custData.name}`
                             };
                         } else {
                             const pkgTotal = Number(this.customerForm.packageTotal) || 5000000;
                             const pkgSessions = Number(this.customerForm.packageSessions) || 10;
                             const pkgPaid = Number(this.customerForm.packagePaid) || 2000000;
-                            const debt = pkgTotal - pkgPaid;
+                            const debt = Math.max(0, pkgTotal - pkgPaid);
                             const treatId = db.ref('treatments').push().key;
                             updates[`treatments/${treatId}`] = {
                                 customerId: custId,
@@ -1454,7 +1487,7 @@
                                     type: 'Thu',
                                     category: 'Thanh toán trả góp liệu trình',
                                     amount: pkgPaid,
-                                    date: new Date().toISOString().split('T')[0],
+                                    date: localToday(),
                                     note: `Thanh toán đợt 1 (${this.customerForm.packageName}) - ${custData.name}`
                                 };
                             }
@@ -1493,11 +1526,11 @@
                 },
 
                 resetFinanceForm() {
-                    this.financeForm = { type: 'Thu', category: 'Doanh thu trị liệu cột sống & xương khớp', amount: '', date: new Date().toISOString().split('T')[0], note: '' };
+                    this.financeForm = { type: 'Thu', category: 'Doanh thu trị liệu cột sống & xương khớp', amount: '', date: localToday(), note: '' };
                 },
 
                 saveFinance() {
-                    if (!this.financeForm.amount) {
+                    if (!(Number(this.financeForm.amount) > 0)) {
                         this.showToast('Vui lòng nhập số tiền!', 'fa-solid fa-triangle-exclamation');
                         return;
                     }
@@ -1512,13 +1545,13 @@
                 exportFinanceExcel() {
                     let csv = '\uFEFFNgày,Loại,Danh Mục,Nội Dung,Số Tiền\n';
                     this.filteredFinances.forEach(f => {
-                        csv += `"${f.date}","${f.type}","${f.category}","${f.note || ''}","${f.amount}"\n`;
+                        csv += [f.date, f.type, f.category, f.note || '', f.amount].map(v => this.csvCell(v)).join(',') + '\n';
                     });
                     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `ThuChi_${this.selectedMonthFilter}.csv`;
+                    a.download = `ThuChi_${this.financeMonth || 'tat-ca'}.csv`;
                     a.click();
                     this.showToast('Xuất file Excel thành công!');
                 },
@@ -1530,7 +1563,7 @@
                 executeResetFinance() {
                     const db = firebase.database();
                     const updates = {};
-                    this.finances.forEach(f => {
+                    this.monthFinances.forEach(f => {
                         updates[`finances/${f.id}`] = null;
                     });
                     db.ref().update(updates).then(() => {
@@ -1551,6 +1584,7 @@
                     const cust = this.customers.find(c => c.id === this.treatmentForm.customerId);
                     const total = Number(this.treatmentForm.totalPrice) || 0;
                     const paid = Number(this.treatmentForm.paidAmount) || 0;
+                    if (paid > total) { this.showToast('Số tiền trả trước lớn hơn tổng giá trị!', 'fa-solid fa-triangle-exclamation'); return; }
                     const debt = total - paid;
                     const sessions = Number(this.treatmentForm.totalSessions) || 10;
 
@@ -1576,7 +1610,7 @@
                             type: 'Thu',
                             category: 'Thanh toán trả góp liệu trình',
                             amount: paid,
-                            date: new Date().toISOString().split('T')[0],
+                            date: localToday(),
                             note: `Thanh toán đợt 1 (${this.treatmentForm.packageName}) - ${cust.name}`
                         };
                     }
@@ -1599,23 +1633,23 @@
                         this.showToast('Vui lòng nhập số tiền thanh toán hợp lệ!', 'fa-solid fa-triangle-exclamation');
                         return;
                     }
-                    const t = this.currentTreatmentPayment;
-                    const newPaid = t.paidAmount + amt;
+                    const t = this.treatments.find(x => x.id === this.currentTreatmentPayment.id);
+                    if (!t) return;
+                    if (amt > t.remainingDebt) { this.showToast('Số tiền vượt quá công nợ còn lại!', 'fa-solid fa-triangle-exclamation'); return; }
+                    const newPaid = (t.paidAmount || 0) + amt;
                     const newDebt = Math.max(0, t.remainingDebt - amt);
-                    const newStatus = newDebt === 0 ? 'Hoàn thành' : t.status;
 
                     const db = firebase.database();
                     const updates = {};
                     updates[`treatments/${t.id}/paidAmount`] = newPaid;
                     updates[`treatments/${t.id}/remainingDebt`] = newDebt;
-                    updates[`treatments/${t.id}/status`] = newStatus;
 
                     const finId = db.ref('finances').push().key;
                     updates[`finances/${finId}`] = {
                         type: 'Thu',
                         category: 'Thanh toán trả góp liệu trình',
                         amount: amt,
-                        date: new Date().toISOString().split('T')[0],
+                        date: localToday(),
                         note: `Đóng trả góp tiếp (${t.packageName}) - ${t.customerName}`
                     };
 
@@ -1663,7 +1697,7 @@
                     }
 
                     const db = firebase.database();
-                    const nowStr = new Date().toISOString().split('T')[0] + ' ' + new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+                    const nowStr = localNow();
                     const updates = {};
 
                     if (this.checkinForm.checkinType === 'package') {
@@ -1718,7 +1752,7 @@
                                 type: 'Thu',
                                 category: 'Doanh thu trị liệu cột sống & xương khớp',
                                 amount: Number(this.checkinForm.singlePrice) || 300000,
-                                date: new Date().toISOString().split('T')[0],
+                                date: localToday(),
                                 note: `Thu tiền buổi lẻ (${this.checkinForm.sessionNumber}) - ${cust.name}`
                             };
                         }
@@ -1731,10 +1765,29 @@
                 },
 
                 confirmDelete(type, id, itemName) {
+                    if (type === 'customer' && this.treatments.some(t => t.customerId === id && t.remainingDebt > 0)) {
+                        this.showToast('Khách còn công nợ, không thể xóa!', 'fa-solid fa-triangle-exclamation'); return;
+                    }
                     this.confirmModal = { show: true, type, id, itemName };
                 },
 
                 executeDelete() {
+                    const { type, id } = this.confirmModal;
+                    const col = { customer: 'customers', finance: 'finances', treatment: 'treatments', checkin: 'checkins', technician: 'technicians' }[type];
+                    const u = {}; u[`${col}/${id}`] = null;
+                    if (type === 'checkin') {
+                        const c = this.checkins.find(x => x.id === id);
+                        const t = c && this.treatments.find(x => x.id === c.treatmentId);
+                        if (t) { const n = Math.max(0, (t.completedSessions || 0) - 1); u[`treatments/${t.id}/completedSessions`] = n; if (n < t.totalSessions) u[`treatments/${t.id}/status`] = 'Đang thực hiện'; }
+                    }
+                    if (type === 'treatment') this.checkins.filter(x => x.treatmentId === id).forEach(x => { u[`checkins/${x.id}`] = null; });
+                    if (type === 'customer') {
+                        this.treatments.filter(x => x.customerId === id).forEach(x => { u[`treatments/${x.id}`] = null; });
+                        this.checkins.filter(x => x.customerId === id).forEach(x => { u[`checkins/${x.id}`] = null; });
+                    }
+                    firebase.database().ref().update(u).then(() => { this.confirmModal.show = false; this.showToast('Đã xóa thành công!'); });
+                },
+                executeDeleteOld() {
                     const { type, id } = this.confirmModal;
                     const db = firebase.database();
                     db.ref(`${type === 'customer' ? 'customers' : type === 'finance' ? 'finances' : type === 'treatment' ? 'treatments' : type === 'checkin' ? 'checkins' : 'technicians'}/${id}`).remove().then(() => {
@@ -1744,6 +1797,9 @@
                 }
             }
         }
+        window.addEventListener('unhandledrejection', e => {
+            try { Alpine.$data(document.body).showToast('Lỗi lưu dữ liệu: ' + ((e.reason && e.reason.message) || 'không rõ'), 'fa-solid fa-triangle-exclamation'); } catch (_) {}
+        });
     </script>
 </body>
 </html>
